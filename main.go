@@ -16,5 +16,5 @@ func init() {
 func main() {
 	r := routes.SetupRoutes()
 
-	r.Run(":8081")
+	r.Run(":8080")
 }

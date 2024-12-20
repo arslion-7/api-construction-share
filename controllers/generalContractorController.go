@@ -3,16 +3,29 @@ package controllers
 import (
 	"github.com/arslion-7/api-construction-share/initializers"
 	"github.com/arslion-7/api-construction-share/models"
+	"github.com/arslion-7/api-construction-share/utils"
 	"github.com/gin-gonic/gin"
 )
 
 func GetGeneralContractors(c *gin.Context) {
-	// show := c.Query("show")
-	var generalContractors []models.GeneralContractor
+	// Get pagination parameters
+	pagination := utils.GetPaginationParams(c)
 
-	if err := initializers.DB.Find(&generalContractors).Error; err != nil {
-		c.AbortWithStatus(400)
+	// Fetch data
+	var data []models.GeneralContractor
+	query := initializers.DB.Model(&models.GeneralContractor{}).
+		Limit(pagination.PageSize).
+		Offset(pagination.Offset)
+
+	if err := query.Find(&data).Error; err != nil {
+		c.AbortWithStatusJSON(400, gin.H{"error": "Failed to retrieve data"})
 		return
 	}
-	c.JSON(200, generalContractors)
+
+	// Get total count
+	var total int64
+	initializers.DB.Model(&models.GeneralContractor{}).Count(&total)
+
+	// Respond with paginated data
+	utils.RespondWithPagination(c, data, pagination, total)
 }
