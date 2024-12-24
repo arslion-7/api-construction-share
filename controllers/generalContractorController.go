@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/arslion-7/api-construction-share/initializers"
@@ -14,8 +13,6 @@ func GetGeneralContractors(c *gin.Context) {
 	// Get pagination parameters
 	pagination := utils.GetPaginationParams(c)
 	search := c.Query("search")
-
-	fmt.Println("search", search)
 
 	// Fetch data
 	var data []models.GeneralContractor
@@ -44,4 +41,18 @@ func GetGeneralContractors(c *gin.Context) {
 
 	// Respond with paginated data
 	utils.RespondWithPagination(c, data, pagination, total)
+}
+
+func GetGeneralContractor(c *gin.Context) {
+	id := c.Param("id")
+
+	var generalContractor models.GeneralContractor
+
+	if err := initializers.DB.First(&generalContractor, id).Error; err != nil {
+		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, generalContractor)
+
 }
