@@ -3,7 +3,8 @@ package models
 import "time"
 
 type Org struct {
-	TB                *int      `gorm:"column:t_b;unique" json:"tb"`
+	ID                uint      `json:"id" gorm:"primarykey"`
+	TB                *int      `gorm:"column:t_b;unique" json:"t_b"`
 	OrgType           *string   `gorm:"column:org_type;size:255" json:"org_type"`
 	OrgName           *string   `gorm:"column:org_name;size:255" json:"org_name"`
 	HeadPosition      *string   `gorm:"column:head_position;size:50" json:"head_position"`
