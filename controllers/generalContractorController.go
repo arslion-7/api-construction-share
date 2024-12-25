@@ -88,3 +88,26 @@ func CreateGeneralContractor(c *gin.Context) {
 	c.JSON(201, newGeneralContractor)
 
 }
+
+func UpdateGeneralContractorOrg(c *gin.Context) {
+	var generalContractor models.GeneralContractor
+	id := c.Params.ByName("id")
+	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&generalContractor).Error; err != nil {
+		c.AbortWithStatus(404)
+		return
+	}
+
+	var org models.Org
+
+	c.BindJSON(&org)
+
+	generalContractor.TB = org.TB
+	generalContractor.OrgType = org.OrgType
+	generalContractor.OrgName = org.OrgName
+	generalContractor.HeadPosition = org.HeadPosition
+	generalContractor.HeadFullName = org.HeadFullName
+	generalContractor.OrgAdditionalInfo = org.OrgAdditionalInfo
+
+	initializers.DB.Save(&generalContractor)
+	c.JSON(200, generalContractor)
+}
