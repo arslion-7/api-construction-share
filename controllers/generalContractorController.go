@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"strings"
+	"time"
 
 	"github.com/arslion-7/api-construction-share/initializers"
 	"github.com/arslion-7/api-construction-share/models"
@@ -107,6 +108,56 @@ func UpdateGeneralContractorOrg(c *gin.Context) {
 	generalContractor.HeadPosition = org.HeadPosition
 	generalContractor.HeadFullName = org.HeadFullName
 	generalContractor.OrgAdditionalInfo = org.OrgAdditionalInfo
+
+	initializers.DB.Save(&generalContractor)
+	c.JSON(200, generalContractor)
+}
+
+type CertInput struct {
+	CertNumber *int       `json:"cert_number"`
+	CertDate   *time.Time `json:"cert_date"`
+}
+
+func UpdateGeneralContractorCert(c *gin.Context) {
+	var generalContractor models.GeneralContractor
+	id := c.Params.ByName("id")
+	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&generalContractor).Error; err != nil {
+		c.AbortWithStatus(404)
+		return
+	}
+
+	var cert CertInput
+
+	c.BindJSON(&cert)
+
+	generalContractor.CertNumber = cert.CertNumber
+	generalContractor.CertDate = cert.CertDate
+
+	initializers.DB.Save(&generalContractor)
+	c.JSON(200, generalContractor)
+}
+
+type ResolutionInput struct {
+	ResolutionCode      *string    `json:"resolution_code"`
+	ResolutionBeginDate *time.Time `json:"resolution_begin_date"`
+	ResolutionEndDate   *time.Time `json:"resolution_end_date"`
+}
+
+func UpdateGeneralContractorResolution(c *gin.Context) {
+	var generalContractor models.GeneralContractor
+	id := c.Params.ByName("id")
+	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&generalContractor).Error; err != nil {
+		c.AbortWithStatus(404)
+		return
+	}
+
+	var resolution ResolutionInput
+
+	c.BindJSON(&resolution)
+
+	generalContractor.ResolutionCode = resolution.ResolutionCode
+	generalContractor.ResolutionBeginDate = resolution.ResolutionBeginDate
+	generalContractor.ResolutionEndDate = resolution.ResolutionEndDate
 
 	initializers.DB.Save(&generalContractor)
 	c.JSON(200, generalContractor)
