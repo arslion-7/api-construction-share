@@ -10,5 +10,6 @@ func GeneralContractorRoutes(api *gin.RouterGroup, url string) {
 	{
 		routes.GET("/", controllers.GetGeneralContractors)
 		routes.GET("/:id", controllers.GetGeneralContractor)
+		routes.POST("/", controllers.CreateGeneralContractor)
 	}
 }

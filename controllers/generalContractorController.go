@@ -54,5 +54,37 @@ func GetGeneralContractor(c *gin.Context) {
 	}
 
 	c.JSON(200, generalContractor)
+}
+
+// type CreateGeneralContractorInput struct {
+// 	TB      *int    `json:"t_b" binding:"required"`
+// 	OrgType *string `json:"org_type" binding:"required"`
+// 	OrgName *string `json:"org_name" binding:"required"`
+// }
+
+func CreateGeneralContractor(c *gin.Context) {
+	// var gc CreateGeneralContractorInput
+	var input models.Org
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	newGeneralContractor := models.GeneralContractor{
+		Org: models.Org{
+			TB:                input.TB,
+			OrgType:           input.OrgType,
+			OrgName:           input.OrgName,
+			HeadPosition:      input.HeadPosition,
+			HeadFullName:      input.HeadFullName,
+			OrgAdditionalInfo: input.OrgAdditionalInfo,
+		},
+	}
+
+	if err := initializers.DB.Create(&newGeneralContractor).Error; err != nil {
+		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(201, newGeneralContractor)
 
 }
