@@ -107,11 +107,15 @@ func main() {
 				HeadPosition: wezipesi,
 				HeadFullName: &headFullName,
 			},
-			CertNumber:          certNumber,
-			CertDate:            shahadatSene,
-			ResolutionCode:      ygtyyarNumber,
-			ResolutionBeginDate: ygtyyarBeginDate,
-			ResolutionEndDate:   ygtyyarEndDate,
+			Cert: models.Cert{
+				CertNumber: certNumber,
+				CertDate:   shahadatSene,
+			},
+			Resolution: models.Resolution{
+				ResolutionCode:      ygtyyarNumber,
+				ResolutionBeginDate: ygtyyarBeginDate,
+				ResolutionEndDate:   ygtyyarEndDate,
+			},
 		}
 
 		// Insert into PostgreSQL

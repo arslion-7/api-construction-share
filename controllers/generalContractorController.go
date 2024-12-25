@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"strings"
-	"time"
 
 	"github.com/arslion-7/api-construction-share/initializers"
 	"github.com/arslion-7/api-construction-share/models"
@@ -57,12 +56,6 @@ func GetGeneralContractor(c *gin.Context) {
 	c.JSON(200, generalContractor)
 }
 
-// type CreateGeneralContractorInput struct {
-// 	TB      *int    `json:"t_b" binding:"required"`
-// 	OrgType *string `json:"org_type" binding:"required"`
-// 	OrgName *string `json:"org_name" binding:"required"`
-// }
-
 func CreateGeneralContractor(c *gin.Context) {
 	// var gc CreateGeneralContractorInput
 	var input models.Org
@@ -113,11 +106,6 @@ func UpdateGeneralContractorOrg(c *gin.Context) {
 	c.JSON(200, generalContractor)
 }
 
-type CertInput struct {
-	CertNumber *int       `json:"cert_number"`
-	CertDate   *time.Time `json:"cert_date"`
-}
-
 func UpdateGeneralContractorCert(c *gin.Context) {
 	var generalContractor models.GeneralContractor
 	id := c.Params.ByName("id")
@@ -126,7 +114,7 @@ func UpdateGeneralContractorCert(c *gin.Context) {
 		return
 	}
 
-	var cert CertInput
+	var cert models.Cert
 
 	c.BindJSON(&cert)
 
@@ -137,12 +125,6 @@ func UpdateGeneralContractorCert(c *gin.Context) {
 	c.JSON(200, generalContractor)
 }
 
-type ResolutionInput struct {
-	ResolutionCode      *string    `json:"resolution_code"`
-	ResolutionBeginDate *time.Time `json:"resolution_begin_date"`
-	ResolutionEndDate   *time.Time `json:"resolution_end_date"`
-}
-
 func UpdateGeneralContractorResolution(c *gin.Context) {
 	var generalContractor models.GeneralContractor
 	id := c.Params.ByName("id")
@@ -151,7 +133,7 @@ func UpdateGeneralContractorResolution(c *gin.Context) {
 		return
 	}
 
-	var resolution ResolutionInput
+	var resolution models.Resolution
 
 	c.BindJSON(&resolution)
 
