@@ -121,14 +121,15 @@ func main() {
 		}
 
 		// Insert into PostgreSQL
-		if err := PostgresDB.Clauses(clause.OnConflict{
-			Columns: []clause.Column{{Name: "t_b"}}, // Conflict target
-			DoUpdates: clause.AssignmentColumns([]string{
-				"org_type", "org_name", "head_position", "head_full_name",
-				"org_additional_info", "updated_at", "cert_number", "cert_date",
-				"resolution_code", "resolution_begin_date", "resolution_end_date",
-			}),
-		}).Create(&contractor).Error; err != nil {
+		if err := PostgresDB.Clauses(
+			clause.OnConflict{
+				Columns: []clause.Column{{Name: "id"}}, // Conflict target
+				DoUpdates: clause.AssignmentColumns([]string{
+					"org_type", "org_name", "head_position", "head_full_name",
+					"org_additional_info", "updated_at", "cert_number", "cert_date",
+					"resolution_code", "resolution_begin_date", "resolution_end_date",
+				}),
+			}).Create(&contractor).Error; err != nil {
 			log.Printf("Failed to insert or update contractor: %v", err)
 		} else {
 			log.Printf("Successfully processed contractor: %v", contractor.OrgName)
