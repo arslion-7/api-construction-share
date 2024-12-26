@@ -16,6 +16,7 @@ func SetupRoutes() *gin.Engine {
 	{
 		api.Static("/uploads", "./uploads")
 		GeneralContractorRoutes(api, "/general_contractors")
+		RegistryRoutes(api, "/registries")
 	}
 
 	return r

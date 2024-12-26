@@ -7,7 +7,8 @@ import (
 func SyncDB() {
 	if err := DB.AutoMigrate(
 		&models.GeneralContractor{},
+		&models.Registry{},
 	); err != nil {
-		panic("failed to migrate tables")
+		panic("failed to migrate tables: " + err.Error())
 	}
 }

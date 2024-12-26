@@ -56,22 +56,29 @@ func GetGeneralContractor(c *gin.Context) {
 	c.JSON(200, generalContractor)
 }
 
+type CreateGeneralContractorInput struct {
+	models.Org
+	TB *int `gorm:"column:t_b;unique" json:"t_b"`
+}
+
 func CreateGeneralContractor(c *gin.Context) {
-	// var gc CreateGeneralContractorInput
-	var input models.Org
+	var input CreateGeneralContractorInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
 	newGeneralContractor := models.GeneralContractor{
-		Org: models.Org{
-			TB:                input.TB,
-			OrgType:           input.OrgType,
-			OrgName:           input.OrgName,
-			HeadPosition:      input.HeadPosition,
-			HeadFullName:      input.HeadFullName,
-			OrgAdditionalInfo: input.OrgAdditionalInfo,
+		TB: input.TB,
+		Contractor: models.Contractor{
+			Org: models.Org{
+
+				OrgType:           input.OrgType,
+				OrgName:           input.OrgName,
+				HeadPosition:      input.HeadPosition,
+				HeadFullName:      input.HeadFullName,
+				OrgAdditionalInfo: input.OrgAdditionalInfo,
+			},
 		},
 	}
 
@@ -83,6 +90,11 @@ func CreateGeneralContractor(c *gin.Context) {
 
 }
 
+type UpdateGeneralContractorOrgInput struct {
+	models.Org
+	TB *int `gorm:"column:t_b;unique" json:"t_b"`
+}
+
 func UpdateGeneralContractorOrg(c *gin.Context) {
 	var generalContractor models.GeneralContractor
 	id := c.Params.ByName("id")
@@ -91,16 +103,16 @@ func UpdateGeneralContractorOrg(c *gin.Context) {
 		return
 	}
 
-	var org models.Org
+	var input UpdateGeneralContractorOrgInput
 
-	c.BindJSON(&org)
+	c.BindJSON(&input)
 
-	generalContractor.TB = org.TB
-	generalContractor.OrgType = org.OrgType
-	generalContractor.OrgName = org.OrgName
-	generalContractor.HeadPosition = org.HeadPosition
-	generalContractor.HeadFullName = org.HeadFullName
-	generalContractor.OrgAdditionalInfo = org.OrgAdditionalInfo
+	generalContractor.TB = input.TB
+	generalContractor.OrgType = input.OrgType
+	generalContractor.OrgName = input.OrgName
+	generalContractor.HeadPosition = input.HeadPosition
+	generalContractor.HeadFullName = input.HeadFullName
+	generalContractor.OrgAdditionalInfo = input.OrgAdditionalInfo
 
 	initializers.DB.Save(&generalContractor)
 	c.JSON(200, generalContractor)

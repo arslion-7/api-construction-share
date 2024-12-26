@@ -99,22 +99,24 @@ func main() {
 		// Create contractor
 		headFullName := fmt.Sprintf("%s %s %s", getNonNilString(familiya), getNonNilString(ady), getNonNilString(otchestvo))
 		contractor := models.GeneralContractor{
-			Org: models.Org{
-				TB:      t_b,
-				OrgName: guramaAdy,
-				OrgType: telekeci_rayat,
-				// OrgAdditionalInfo: ,
-				HeadPosition: wezipesi,
-				HeadFullName: &headFullName,
-			},
-			Cert: models.Cert{
-				CertNumber: certNumber,
-				CertDate:   shahadatSene,
-			},
-			Resolution: models.Resolution{
-				ResolutionCode:      ygtyyarNumber,
-				ResolutionBeginDate: ygtyyarBeginDate,
-				ResolutionEndDate:   ygtyyarEndDate,
+			TB: t_b,
+			Contractor: models.Contractor{
+				Org: models.Org{
+					OrgName: guramaAdy,
+					OrgType: telekeci_rayat,
+					// OrgAdditionalInfo: ,
+					HeadPosition: wezipesi,
+					HeadFullName: &headFullName,
+				},
+				Cert: models.Cert{
+					CertNumber: certNumber,
+					CertDate:   shahadatSene,
+				},
+				Resolution: models.Resolution{
+					ResolutionCode:      ygtyyarNumber,
+					ResolutionBeginDate: ygtyyarBeginDate,
+					ResolutionEndDate:   ygtyyarEndDate,
+				},
 			},
 		}
 
