@@ -12,5 +12,5 @@ type Registry struct {
 	CreatedAt           time.Time      `gorm:"column:created_at;autoCreateTime" json:"created_at"`
 	UpdatedAt           time.Time      `gorm:"column:updated_at;autoUpdateTime" json:"updated_at"`
 	DeletedAt           gorm.DeletedAt `json:"deleted_at" gorm:"index"`
-	GeneralContractorID uint           `gorm:"column:general_contractor_id" json:"general_contractor_id"`
+	GeneralContractorID *uint          `gorm:"column:general_contractor_id" json:"general_contractor_id"`
 }
