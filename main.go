@@ -9,7 +9,7 @@ func init() {
 	initializers.LoadEnvVars()
 	initializers.ConnectToDB()
 	initializers.SyncDB()
-	// initializers.InitDataFill()
+	initializers.InitDataFill()
 	// initializers.CreateDirs()
 }
 

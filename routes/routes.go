@@ -15,6 +15,8 @@ func SetupRoutes() *gin.Engine {
 	api := r.Group("/api")
 	{
 		api.Static("/uploads", "./uploads")
+		AuthRoutes(api, "/auth")
+		UserRoutes(api, "/users")
 		GeneralContractorRoutes(api, "/general_contractors")
 		RegistryRoutes(api, "/registries")
 	}

@@ -6,6 +6,7 @@ import (
 
 func SyncDB() {
 	if err := DB.AutoMigrate(
+		&models.User{},
 		&models.GeneralContractor{},
 		&models.Registry{},
 	); err != nil {
