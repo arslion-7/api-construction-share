@@ -7,14 +7,16 @@ import (
 
 // Predefined roles for validation and consistency
 type Roles struct {
-	Admin string
-	User  string
+	Admin     string
+	UserShare string
+	BossShare string
 }
 
 // Global instance of Roles
 var Role = Roles{
-	Admin: "admin",
-	User:  "user",
+	Admin:     "admin",
+	UserShare: "user_share",
+	BossShare: "boss_share",
 }
 
 func CheckUserRole(role string) gin.HandlerFunc {
@@ -23,7 +25,7 @@ func CheckUserRole(role string) gin.HandlerFunc {
 		user, _ := c.Get("user")
 		typedUser := user.(models.User)
 
-		if *typedUser.Role == role {
+		if typedUser.Role != nil && *typedUser.Role == role {
 			c.Next()
 		} else {
 			c.JSON(403, gin.H{

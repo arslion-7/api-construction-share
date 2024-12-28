@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/arslion-7/api-construction-share/initializers"
@@ -75,7 +74,6 @@ type UserUpdateRequest struct {
 	Email       string  `json:"email" binding:"required"`
 	FullName    *string `json:"full_name"`
 	PhoneNumber *string `json:"phone_number"`
-	Password    string  `json:"password"`
 }
 
 func UpdateUser(c *gin.Context) {
@@ -93,21 +91,19 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("input.Password", input.Password)
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to hash password"})
-		return
-	}
+	// hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+	// if err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to hash password"})
+	// 	return
+	// }
 
 	user.Email = input.Email
 	user.FullName = input.FullName
 	user.PhoneNumber = input.PhoneNumber
-	user.Password = string(hashedPassword)
+	// user.Password = string(hashedPassword)
 
 	// initializers.DB.Omit("Password").Save(&user)
-	initializers.DB.Save(&user)
+	initializers.DB.Omit("Password").Save(&user)
 	c.JSON(200, user)
 }
 
