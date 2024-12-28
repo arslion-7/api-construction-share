@@ -38,7 +38,8 @@ func GetRegistry(c *gin.Context) {
 
 	var registry models.Registry
 
-	if err := initializers.DB.First(&registry, id).Error; err != nil {
+	if err := initializers.DB.Preload("GeneralContractor").
+		First(&registry, id).Error; err != nil {
 		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
 		return
 	}
