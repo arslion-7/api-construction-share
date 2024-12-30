@@ -11,6 +11,7 @@ func RegistryRoutes(api *gin.RouterGroup, url string) {
 		routes.GET("/", controllers.GetRegistries)
 		routes.GET("/:id", controllers.GetRegistry)
 		routes.POST("/", controllers.CreateRegistry)
+		routes.PUT("/:id/update_registry_number", controllers.UpdateRegistryNumber)
 		routes.PUT("/:id/update_general_contractor", controllers.UpdateRegistryGeneralContractor)
 	}
 }

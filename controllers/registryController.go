@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/arslion-7/api-construction-share/initializers"
@@ -74,11 +73,31 @@ func UpdateRegistryGeneralContractor(c *gin.Context) {
 
 	c.BindJSON(&input)
 
-	fmt.Println("input.GeneralContractorID", input.GeneralContractorID)
-
 	registry.GeneralContractorID = input.GeneralContractorID
 
 	initializers.DB.Save(&registry)
 	c.JSON(200, registry)
 
+}
+
+type UpdateRegistryNumberInput struct {
+	TB int `json:"t_b"`
+}
+
+func UpdateRegistryNumber(c *gin.Context) {
+	var input UpdateRegistryNumberInput
+
+	var registry models.Registry
+	id := c.Params.ByName("id")
+	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&registry).Error; err != nil {
+		c.AbortWithStatus(404)
+		return
+	}
+
+	c.BindJSON(&input)
+
+	registry.TB = &input.TB
+
+	initializers.DB.Save(&registry)
+	c.JSON(200, registry)
 }
