@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -17,6 +18,7 @@ func GetRegistries(c *gin.Context) {
 	var data []models.Registry
 	query := initializers.DB.Model(&models.Registry{}).
 		Preload("GeneralContractor").
+		Preload("User").
 		Limit(pagination.PageSize).
 		Offset(pagination.Offset)
 
@@ -55,7 +57,7 @@ func GetRegistry(c *gin.Context) {
 
 	var registry models.Registry
 
-	if err := initializers.DB.Preload("GeneralContractor").
+	if err := initializers.DB.Preload("GeneralContractor").Preload("User").
 		First(&registry, id).Error; err != nil {
 		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
 		return
@@ -66,6 +68,17 @@ func GetRegistry(c *gin.Context) {
 
 func CreateRegistry(c *gin.Context) {
 	var registry models.Registry
+
+	user, exists := c.Get("user")
+	fmt.Println("user", user)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "user not authenticated"})
+		return
+	}
+
+	typedUser := user.(models.User)
+
+	registry.UserID = &typedUser.ID
 
 	if err := initializers.DB.Save(&registry).Error; err != nil {
 		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
