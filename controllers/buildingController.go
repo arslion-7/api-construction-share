@@ -15,7 +15,7 @@ func GetBuildings(c *gin.Context) {
 	search := c.Query("search")
 
 	var data []models.Building
-	query := initializers.DB.Model(&models.Building{}).
+	query := initializers.DB.Model(&models.Building{}).Preload("Areas").
 		Limit(pagination.PageSize).
 		Offset(pagination.Offset)
 
@@ -48,4 +48,17 @@ func GetBuildings(c *gin.Context) {
 
 	utils.RespondWithPagination(c, data, pagination, total)
 
+}
+
+func GetBuilding(c *gin.Context) {
+	id := c.Param("id")
+
+	var building models.Building
+
+	if err := initializers.DB.Preload("Areas").First(&building, id).Error; err != nil {
+		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, building)
 }

@@ -7,7 +7,7 @@ import (
 type Building struct {
 	ID                   uint       `gorm:"primaryKey" json:"id"`
 	TB                   *int       `gorm:"uniqueIndex" json:"t_b"`
-	Area                 []Area     `gorm:"many2many:building_areas;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"area"`
+	Areas                []Area     `gorm:"many2many:building_areas;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"areas"`
 	Street               *string    `gorm:"type:varchar(510);index" json:"street"`
 	Kind                 *string    `gorm:"type:varchar(510);index" json:"kind"`
 	CreatedAt            time.Time  `gorm:"autoCreateTime" json:"created_at"`

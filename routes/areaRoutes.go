@@ -6,11 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func BuildingRoutes(api *gin.RouterGroup, url string) {
+func AreaRoutes(api *gin.RouterGroup, url string) {
 	routes := api.Group(url, middlewares.RequireAuth)
 	{
-		routes.GET("/", controllers.GetBuildings)
-		routes.GET("/:id", controllers.GetBuilding)
+		routes.GET("/area_hierarchy", controllers.GetAreaHierarchy)
+		routes.GET("/area_hierarchy/:code", controllers.FetchAreaHierarchy)
 		// routes.POST("/", controllers.CreateRegistry)
 	}
 }
