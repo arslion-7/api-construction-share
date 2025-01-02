@@ -18,6 +18,7 @@ func SetupRoutes() *gin.Engine {
 		AuthRoutes(api, "/auth")
 		UserRoutes(api, "/users")
 		GeneralContractorRoutes(api, "/general_contractors")
+		BuildingRoutes(api, "/buildings")
 		RegistryRoutes(api, "/registries")
 	}
 

@@ -92,25 +92,6 @@ func CreateRegistry(c *gin.Context) {
 // 	GeneralContractorId `json:general_contractor_id`
 // }
 
-func UpdateRegistryGeneralContractor(c *gin.Context) {
-	var input models.Registry
-
-	var registry models.Registry
-	id := c.Params.ByName("id")
-	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&registry).Error; err != nil {
-		c.AbortWithStatus(404)
-		return
-	}
-
-	c.BindJSON(&input)
-
-	registry.GeneralContractorID = input.GeneralContractorID
-
-	initializers.DB.Save(&registry)
-	c.JSON(200, registry)
-
-}
-
 type UpdateRegistryNumberInput struct {
 	TB int `json:"t_b"`
 }
@@ -131,4 +112,40 @@ func UpdateRegistryNumber(c *gin.Context) {
 
 	initializers.DB.Save(&registry)
 	c.JSON(200, registry)
+}
+
+func UpdateRegistryGeneralContractor(c *gin.Context) {
+	var input models.Registry
+
+	var registry models.Registry
+	id := c.Params.ByName("id")
+	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&registry).Error; err != nil {
+		c.AbortWithStatus(404)
+		return
+	}
+
+	c.BindJSON(&input)
+
+	initializers.DB.Model(&models.Registry{}).Where("id = ?", id).Update("general_contractor_id", input.GeneralContractorID)
+
+	c.JSON(200, registry)
+
+}
+
+func UpdateRegistryBuilding(c *gin.Context) {
+	var input models.Registry
+
+	var registry models.Registry
+	id := c.Params.ByName("id")
+	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&registry).Error; err != nil {
+		c.AbortWithStatus(404)
+		return
+	}
+
+	c.BindJSON(&input)
+
+	initializers.DB.Model(&models.Registry{}).Where("id = ?", id).Update("building_id", input.BuildingID)
+
+	c.JSON(200, registry)
+
 }
