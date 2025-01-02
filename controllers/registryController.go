@@ -17,8 +17,9 @@ func GetRegistries(c *gin.Context) {
 
 	var data []models.Registry
 	query := initializers.DB.Model(&models.Registry{}).
-		Preload("GeneralContractor").
 		Preload("User").
+		Preload("GeneralContractor").
+		Preload("Building").
 		Limit(pagination.PageSize).
 		Offset(pagination.Offset)
 
@@ -57,7 +58,7 @@ func GetRegistry(c *gin.Context) {
 
 	var registry models.Registry
 
-	if err := initializers.DB.Preload("GeneralContractor").Preload("User").
+	if err := initializers.DB.Preload("User").Preload("GeneralContractor").Preload("Building").
 		First(&registry, id).Error; err != nil {
 		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
 		return
