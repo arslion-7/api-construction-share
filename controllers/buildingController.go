@@ -92,8 +92,10 @@ func CreateBuilding(c *gin.Context) {
 	// Create a new building
 	newBuilding := models.Building{
 		// TB:    input.TB,
-		Areas:  areas, // Set the association
-		Street: input.Street,
+		BuildingAddress: models.BuildingAddress{
+			Areas:  areas, // Set the association
+			Street: input.Street,
+		},
 	}
 
 	if err := initializers.DB.Create(&newBuilding).Error; err != nil {
@@ -171,6 +173,73 @@ func UpdateBuildingMain(c *gin.Context) {
 	building.Percentage = input.Percentage
 	building.StartDate = input.StartDate
 	building.EndDate = input.EndDate
+
+	initializers.DB.Save(&building)
+	c.JSON(200, building)
+}
+
+func UpdateBuildingOrder(c *gin.Context) {
+	var building models.Building
+	id := c.Params.ByName("id")
+	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&building).Error; err != nil {
+		c.AbortWithStatus(404)
+		return
+	}
+
+	var input models.BuildingOrder
+
+	c.BindJSON(&input)
+
+	building.OrderWhoseWhat = input.OrderWhoseWhat
+	building.OrderDate = input.OrderDate
+	building.OrderCode = input.OrderCode
+	building.OrderAdditionalInfo = input.OrderAdditionalInfo
+
+	initializers.DB.Save(&building)
+	c.JSON(200, building)
+}
+
+func UpdateBuildingCert(c *gin.Context) {
+	var building models.Building
+	id := c.Params.ByName("id")
+	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&building).Error; err != nil {
+		c.AbortWithStatus(404)
+		return
+	}
+
+	var input models.BuildingCert
+
+	c.BindJSON(&input)
+
+	building.CertName = input.CertName
+	building.Cert1Date = input.Cert1Date
+	building.Cert1Code = input.Cert1Code
+	building.Cert2Date = input.Cert2Date
+	building.Cert2Code = input.Cert2Code
+
+	initializers.DB.Save(&building)
+	c.JSON(200, building)
+}
+
+func UpdateBuildingSquare(c *gin.Context) {
+	var building models.Building
+	id := c.Params.ByName("id")
+	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&building).Error; err != nil {
+		c.AbortWithStatus(404)
+		return
+	}
+
+	var input models.BuildingSquare
+
+	c.BindJSON(&input)
+
+	building.Square1 = input.Square1
+	building.Square1Name = input.Square1Name
+	building.Square2 = input.Square2
+	building.Square2Name = input.Square2Name
+	building.Square3 = input.Square3
+	building.Square3Name = input.Square3Name
+	building.SquareAdditionalInfo = input.SquareAdditionalInfo
 
 	initializers.DB.Save(&building)
 	c.JSON(200, building)
