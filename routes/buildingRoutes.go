@@ -13,6 +13,7 @@ func BuildingRoutes(api *gin.RouterGroup, url string) {
 		routes.GET("/:id", controllers.GetBuilding)
 		routes.POST("/", controllers.CreateBuilding)
 		routes.PUT("/:id/update_address", controllers.UpdateBuildingAddress)
+		routes.PUT("/:id/update_main", controllers.UpdateBuildingMain)
 		// routes.POST("/", controllers.CreateRegistry)
 	}
 }

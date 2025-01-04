@@ -4,18 +4,20 @@ import (
 	"time"
 )
 
+type BuildingMain struct {
+	Kind       *string    `gorm:"type:varchar(510);index" json:"kind"`
+	StartDate  *time.Time `json:"start_date"`
+	EndDate    *time.Time `json:"end_date"`
+	Price      *float64   `gorm:"type:decimal(14,2)" json:"price"`
+	Percentage *float64   `json:"percentage"`
+}
+
 type Building struct {
-	ID                   uint       `gorm:"primaryKey" json:"id"`
+	BaseModel
+	BuildingMain
 	TB                   *int       `gorm:"uniqueIndex" json:"t_b"`
 	Areas                []Area     `gorm:"many2many:building_areas;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"areas"`
 	Street               *string    `gorm:"type:varchar(510);index" json:"street"`
-	Kind                 *string    `gorm:"type:varchar(510);index" json:"kind"`
-	CreatedAt            time.Time  `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt            time.Time  `gorm:"autoUpdateTime" json:"updated_at"`
-	StartDate            *time.Time `json:"start_date"`
-	EndDate              *time.Time `json:"end_date"`
-	Price                *float64   `gorm:"type:decimal(14,2)" json:"price"`
-	Percentage           *float64   `json:"percentage"`
 	OrderWhoseWhat       *string    `gorm:"type:varchar(255)" json:"order_whose_what"`
 	OrderDate            *time.Time `json:"order_date"`
 	OrderCode            *string    `gorm:"type:varchar(50);index" json:"order_code"`

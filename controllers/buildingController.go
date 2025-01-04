@@ -153,3 +153,25 @@ func UpdateBuildingAddress(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Building address updated successfully"})
 }
+
+func UpdateBuildingMain(c *gin.Context) {
+	var building models.Building
+	id := c.Params.ByName("id")
+	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&building).Error; err != nil {
+		c.AbortWithStatus(404)
+		return
+	}
+
+	var input models.BuildingMain
+
+	c.BindJSON(&input)
+
+	building.Kind = input.Kind
+	building.Price = input.Price
+	building.Percentage = input.Percentage
+	building.StartDate = input.StartDate
+	building.EndDate = input.EndDate
+
+	initializers.DB.Save(&building)
+	c.JSON(200, building)
+}
