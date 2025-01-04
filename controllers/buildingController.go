@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -64,15 +65,16 @@ func GetBuilding(c *gin.Context) {
 	c.JSON(200, building)
 }
 
-type CreateBuildingInput struct {
+type BuildingAddressInput struct {
 	// TB    *int   `json:"t_b"`
-	Areas []uint `json:"areas"` // IDs of the associated Areas
+	Areas  []uint  `json:"areas"` // IDs of the associated Areas
+	Street *string `json:"street"`
 }
 
 // CreateBuilding creates a new building with associated areas.
 func CreateBuilding(c *gin.Context) {
 	// Parse the input JSON
-	var input CreateBuildingInput
+	var input BuildingAddressInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return
@@ -90,7 +92,8 @@ func CreateBuilding(c *gin.Context) {
 	// Create a new building
 	newBuilding := models.Building{
 		// TB:    input.TB,
-		Areas: areas, // Set the association
+		Areas:  areas, // Set the association
+		Street: input.Street,
 	}
 
 	if err := initializers.DB.Create(&newBuilding).Error; err != nil {
@@ -106,8 +109,8 @@ func UpdateBuildingAddress(c *gin.Context) {
 	id := c.Param("id")
 
 	// Parse the request body (array of area IDs)
-	var areaIDs []uint
-	if err := c.ShouldBindJSON(&areaIDs); err != nil {
+	var input BuildingAddressInput
+	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
@@ -123,6 +126,8 @@ func UpdateBuildingAddress(c *gin.Context) {
 		return
 	}
 
+	areaIDs := input.Areas
+
 	// Fetch the areas to associate
 	var areas []models.Area
 	if len(areaIDs) > 0 {
@@ -135,6 +140,14 @@ func UpdateBuildingAddress(c *gin.Context) {
 	// Update the building's areas (many-to-many relationship)
 	if err := initializers.DB.Model(&building).Association("Areas").Replace(&areas); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update areas"})
+		return
+	}
+
+	fmt.Println("input.Street", input.Street)
+
+	building.Street = input.Street
+	if err := initializers.DB.Save(&building).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update street"})
 		return
 	}
 
