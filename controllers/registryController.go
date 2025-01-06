@@ -20,6 +20,7 @@ func GetRegistries(c *gin.Context) {
 		Preload("User").
 		Preload("GeneralContractor").
 		Preload("Building").
+		Preload("Builder").
 		Limit(pagination.PageSize).
 		Offset(pagination.Offset)
 
@@ -58,7 +59,7 @@ func GetRegistry(c *gin.Context) {
 
 	var registry models.Registry
 
-	if err := initializers.DB.Preload("User").Preload("GeneralContractor").Preload("Building").
+	if err := initializers.DB.Preload("User").Preload("GeneralContractor").Preload("Building").Preload("Builder").
 		First(&registry, id).Error; err != nil {
 		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
 		return
@@ -146,6 +147,24 @@ func UpdateRegistryBuilding(c *gin.Context) {
 	c.BindJSON(&input)
 
 	initializers.DB.Model(&models.Registry{}).Where("id = ?", id).Update("building_id", input.BuildingID)
+
+	c.JSON(200, registry)
+
+}
+
+func UpdateRegistryBuilder(c *gin.Context) {
+	var input models.Registry
+
+	var registry models.Registry
+	id := c.Params.ByName("id")
+	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&registry).Error; err != nil {
+		c.AbortWithStatus(404)
+		return
+	}
+
+	c.BindJSON(&input)
+
+	initializers.DB.Model(&models.Registry{}).Where("id = ?", id).Update("builder_id", input.BuilderID)
 
 	c.JSON(200, registry)
 

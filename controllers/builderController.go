@@ -8,6 +8,7 @@ import (
 	"github.com/arslion-7/api-construction-share/models"
 	"github.com/arslion-7/api-construction-share/utils"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func GetBuilders(c *gin.Context) {
@@ -63,96 +64,97 @@ func GetBuilder(c *gin.Context) {
 	c.JSON(200, builder)
 }
 
-// type BuilderAddressInput struct {
-// 	// TB    *int   `json:"t_b"`
-// 	Areas  []uint  `json:"areas"` // IDs of the associated Areas
-// 	Street *string `json:"street"`
-// }
+type BuilderAddressInput struct {
+	// TB    *int   `json:"t_b"`
+	Areas                 []uint  `json:"areas"` // IDs of the associated Areas
+	Address               *string `gorm:"type:varchar(510);index" json:"address"`
+	AddressAdditionalInfo *string `gorm:"type:varchar(510);index" json:"address_additional_info"`
+}
 
 // CreateBuilder creates a new builder with associated areas.
-// func CreateBuilder(c *gin.Context) {
-// 	// Parse the input JSON
-// 	var input BuilderAddressInput
-// 	if err := c.ShouldBindJSON(&input); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
-// 		return
-// 	}
+func CreateBuilder(c *gin.Context) {
+	// Parse the input JSON
+	var input BuilderAddressInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
 
-// 	// Fetch the areas to associate
-// 	var areas []models.Area
-// 	if len(input.Areas) > 0 {
-// 		if err := initializers.DB.Where("code IN ?", input.Areas).Find(&areas).Error; err != nil {
-// 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch areas"})
-// 			return
-// 		}
-// 	}
+	// Fetch the areas to associate
+	var areas []models.Area
+	if len(input.Areas) > 0 {
+		if err := initializers.DB.Where("code IN ?", input.Areas).Find(&areas).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch areas"})
+			return
+		}
+	}
 
-// 	// Create a new builder
-// 	newBuilder := models.Builder{
-// 		// TB:    input.TB,
-// 		BuilderAddress: models.BuilderAddress{
-// 			Areas:  areas, // Set the association
-// 			Street: input.Street,
-// 		},
-// 	}
+	// Create a new builder
+	newBuilder := models.Builder{
+		// TB:    input.TB,
+		BuilderAddress: models.BuilderAddress{
+			Areas:                 areas, // Set the association
+			Address:               input.Address,
+			AddressAdditionalInfo: input.AddressAdditionalInfo,
+		},
+	}
 
-// 	if err := initializers.DB.Create(&newBuilder).Error; err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create builder"})
-// 		return
-// 	}
+	if err := initializers.DB.Create(&newBuilder).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create builder"})
+		return
+	}
 
-// 	c.JSON(http.StatusCreated, newBuilder)
-// }
+	c.JSON(http.StatusCreated, newBuilder)
+}
 
-// func UpdateBuilderAddress(c *gin.Context) {
-// 	// Extract builder ID from the URL parameters
-// 	id := c.Param("id")
+func UpdateBuilderAddress(c *gin.Context) {
+	// Extract builder ID from the URL parameters
+	id := c.Param("id")
 
-// 	// Parse the request body (array of area IDs)
-// 	var input BuilderAddressInput
-// 	if err := c.ShouldBindJSON(&input); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
-// 		return
-// 	}
+	// Parse the request body (array of area IDs)
+	var input BuilderAddressInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
 
-// 	// Find the builder by ID
-// 	var builder models.Builder
-// 	if err := initializers.DB.Preload("Areas").Where("id = ?", id).First(&builder).Error; err != nil {
-// 		if err == gorm.ErrRecordNotFound {
-// 			c.JSON(http.StatusNotFound, gin.H{"error": "Builder not found"})
-// 			return
-// 		}
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch builder"})
-// 		return
-// 	}
+	// Find the builder by ID
+	var builder models.Builder
+	if err := initializers.DB.Preload("Areas").Where("id = ?", id).First(&builder).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Builder not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch builder"})
+		return
+	}
 
-// 	areaIDs := input.Areas
+	areaIDs := input.Areas
 
-// 	// Fetch the areas to associate
-// 	var areas []models.Area
-// 	if len(areaIDs) > 0 {
-// 		if err := initializers.DB.Where("code IN ?", areaIDs).Find(&areas).Error; err != nil {
-// 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch areas"})
-// 			return
-// 		}
-// 	}
+	// Fetch the areas to associate
+	var areas []models.Area
+	if len(areaIDs) > 0 {
+		if err := initializers.DB.Where("code IN ?", areaIDs).Find(&areas).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch areas"})
+			return
+		}
+	}
 
-// 	// Update the builder's areas (many-to-many relationship)
-// 	if err := initializers.DB.Model(&builder).Association("Areas").Replace(&areas); err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update areas"})
-// 		return
-// 	}
+	// Update the builder's areas (many-to-many relationship)
+	if err := initializers.DB.Model(&builder).Association("Areas").Replace(&areas); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update areas"})
+		return
+	}
 
-// 	fmt.Println("input.Street", input.Street)
+	builder.Address = input.Address
+	builder.AddressAdditionalInfo = input.AddressAdditionalInfo
+	if err := initializers.DB.Save(&builder).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update street"})
+		return
+	}
 
-// 	builder.Street = input.Street
-// 	if err := initializers.DB.Save(&builder).Error; err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update street"})
-// 		return
-// 	}
-
-// 	c.JSON(http.StatusOK, gin.H{"message": "Builder address updated successfully"})
-// }
+	c.JSON(http.StatusOK, gin.H{"message": "Builder address updated successfully"})
+}
 
 // // func UpdateBuilderMain(c *gin.Context) {
 // // 	var builder models.Builder

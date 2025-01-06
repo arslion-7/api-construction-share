@@ -11,7 +11,8 @@ func BuilderRoutes(api *gin.RouterGroup, url string) {
 	{
 		routes.GET("/", controllers.GetBuilders)
 		routes.GET("/:id", controllers.GetBuilder)
-		// routes.POST("/", controllers.CreateBuilding)
+		routes.POST("/", controllers.CreateBuilder)
+		routes.PUT("/:id/update_address", controllers.UpdateBuilderAddress)
 		// routes.POST("/", controllers.CreateRegistry)
 	}
 }

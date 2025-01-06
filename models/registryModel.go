@@ -18,5 +18,7 @@ type Registry struct {
 	GeneralContractor   *GeneralContractor `gorm:"foreignKey:GeneralContractorID" json:"general_contractor"` // Important for preload
 	BuildingID          *uint              `gorm:"column:building_id" json:"building_id"`
 	Building            *Building          `gorm:"foreignKey:BuildingID" json:"building"` // Important for preload
+	BuilderID           *uint              `gorm:"column:builder_id" json:"builder_id"`
+	Builder             *Builder           `gorm:"foreignKey:BuilderID" json:"builder"` // Important for preload
 
 }
