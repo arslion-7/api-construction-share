@@ -10,11 +10,13 @@ type BuildingAddress struct {
 }
 
 type BuildingMain struct {
-	Kind       *string    `gorm:"type:varchar(510);index" json:"kind"`
-	StartDate  *time.Time `json:"start_date"`
-	EndDate    *time.Time `json:"end_date"`
-	Price      *float64   `gorm:"type:decimal(14,2)" json:"price"`
-	Percentage *float64   `json:"percentage"`
+	TB          *int       `gorm:"uniqueIndex" json:"t_b"`
+	IdentNumber *int       `json:"ident_number"`
+	Kind        *string    `gorm:"type:varchar(510);index" json:"kind"`
+	StartDate   *time.Time `json:"start_date"`
+	EndDate     *time.Time `json:"end_date"`
+	Price       *float64   `gorm:"type:decimal(14,2)" json:"price"`
+	Percentage  *float64   `json:"percentage"`
 }
 
 type BuildingOrder struct {
@@ -49,6 +51,4 @@ type Building struct {
 	BuildingOrder
 	BuildingCert
 	BuildingSquare
-	TB          *int `gorm:"uniqueIndex" json:"t_b"`
-	IdentNumber *int `json:"ident_number"`
 }

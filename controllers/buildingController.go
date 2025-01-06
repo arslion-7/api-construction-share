@@ -168,6 +168,8 @@ func UpdateBuildingMain(c *gin.Context) {
 
 	c.BindJSON(&input)
 
+	building.TB = input.TB
+	building.IdentNumber = input.IdentNumber
 	building.Kind = input.Kind
 	building.Price = input.Price
 	building.Percentage = input.Percentage

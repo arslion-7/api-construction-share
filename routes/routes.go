@@ -20,6 +20,7 @@ func SetupRoutes() *gin.Engine {
 		AreaRoutes(api, "/areas")
 		GeneralContractorRoutes(api, "/general_contractors")
 		BuildingRoutes(api, "/buildings")
+		BuilderRoutes(api, "/builders")
 		RegistryRoutes(api, "/registries")
 	}
 
