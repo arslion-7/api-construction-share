@@ -1,10 +1,10 @@
 # Variables
-BINARY_NAME = api-construction-share
+BINARY_NAME = payly
 BUILD_DIR = ./bin
-REMOTE_SERVER = share
-REMOTE_PATH = /var/www/construction-share
+REMOTE_SERVER = payly
+REMOTE_PATH = /var/www/payly/api/
 ENV_FILE = .env
-SERVICE_NAME = api-construction-share.service
+SERVICE_NAME = payly.service
 
 # Default target
 all: build deploy
