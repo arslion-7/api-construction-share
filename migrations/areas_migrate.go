@@ -11,6 +11,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
+	"github.com/arslion-7/api-construction-share/initializers"
 	"github.com/arslion-7/api-construction-share/models"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -19,11 +20,14 @@ var PostgresDB *gorm.DB
 
 func main() {
 	// Load environment variables
+	initializers.LoadEnvVars()
 	dbHost := os.Getenv("DB_HOST")
 	dbPort := os.Getenv("DB_PORT")
 	dbUser := os.Getenv("DB_USER")
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
+
+	fmt.Println("dbHost", dbHost)
 
 	// Connect to MySQL
 	mysqlDSN := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", "root", "010203", "192.168.0.242", "3306", "adresturkmen")
