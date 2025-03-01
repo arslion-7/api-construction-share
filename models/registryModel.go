@@ -20,5 +20,7 @@ type Registry struct {
 	Building            *Building          `gorm:"foreignKey:BuildingID" json:"building"` // Important for preload
 	BuilderID           *uint              `gorm:"column:builder_id" json:"builder_id"`
 	Builder             *Builder           `gorm:"foreignKey:BuilderID" json:"builder"` // Important for preload
+	ReceiverID          *uint              `gorm:"column:receiver_id" json:"receiver_id"`
+	Receiver            *Receiver          `gorm:"foreignKey:ReceiverID" json:"receiver"` // Important for preload
 
 }

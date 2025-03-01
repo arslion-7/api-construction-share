@@ -22,6 +22,7 @@ func SetupRoutes() *gin.Engine {
 		BuildingRoutes(api, "/buildings")
 		BuilderRoutes(api, "/builders")
 		RegistryRoutes(api, "/registries")
+		ReceiverRoutes(api, "/receivers")
 	}
 
 	return r
