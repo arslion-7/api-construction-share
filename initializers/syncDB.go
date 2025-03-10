@@ -13,6 +13,7 @@ func SyncDB() {
 		&models.GeneralContractor{},
 		&models.Registry{},
 		&models.Receiver{},
+		&models.Shareholder{},
 	); err != nil {
 		panic("failed to migrate tables: " + err.Error())
 	}
