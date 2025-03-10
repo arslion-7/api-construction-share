@@ -64,17 +64,10 @@ func GetBuilder(c *gin.Context) {
 	c.JSON(200, builder)
 }
 
-type BuilderAddressInput struct {
-	// TB    *int   `json:"t_b"`
-	Areas                 []uint  `json:"areas"` // IDs of the associated Areas
-	Address               *string `gorm:"type:varchar(510);index" json:"address"`
-	AddressAdditionalInfo *string `gorm:"type:varchar(510);index" json:"address_additional_info"`
-}
-
 // CreateBuilder creates a new builder with associated areas.
 func CreateBuilder(c *gin.Context) {
 	// Parse the input JSON
-	var input BuilderAddressInput
+	var input AddressInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return
@@ -112,7 +105,7 @@ func UpdateBuilderAddress(c *gin.Context) {
 	id := c.Param("id")
 
 	// Parse the request body (array of area IDs)
-	var input BuilderAddressInput
+	var input AddressInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
