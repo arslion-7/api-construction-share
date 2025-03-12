@@ -192,3 +192,20 @@ func UpdateRegistryReceiver(c *gin.Context) {
 
 	c.JSON(200, registry)
 }
+
+func UpdateRegistryShareholder(c *gin.Context) {
+	var input models.Registry
+
+	var registry models.Registry
+	id := c.Params.ByName("id")
+	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&registry).Error; err != nil {
+		c.AbortWithStatus(404)
+		return
+	}
+
+	c.BindJSON(&input)
+
+	initializers.DB.Model(&models.Registry{}).Where("id = ?", id).Update("shareholder_id", input.ShareholderID)
+
+	c.JSON(200, registry)
+}

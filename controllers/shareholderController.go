@@ -172,6 +172,28 @@ func UpdateShareholderDocs(c *gin.Context) {
 	c.JSON(200, data)
 }
 
+func UpdateShareholderOrg(c *gin.Context) {
+	var data models.Shareholder
+	id := c.Param("id")
+	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&data).Error; err != nil {
+		c.AbortWithStatus(404)
+		return
+	}
+
+	var input models.Org
+
+	c.BindJSON(&input)
+
+	data.OrgType = input.OrgType
+	data.OrgName = input.OrgName
+	data.HeadPosition = input.HeadPosition
+	data.HeadFullName = input.HeadFullName
+	data.OrgAdditionalInfo = input.OrgAdditionalInfo
+
+	initializers.DB.Save(&data)
+	c.JSON(200, data)
+}
+
 func DeleteShareholder(c *gin.Context) {
 	id := c.Param("id")
 

@@ -22,5 +22,6 @@ type Registry struct {
 	Builder             *Builder           `gorm:"foreignKey:BuilderID" json:"builder"` // Important for preload
 	ReceiverID          *uint              `gorm:"column:receiver_id" json:"receiver_id"`
 	Receiver            *Receiver          `gorm:"foreignKey:ReceiverID" json:"receiver"` // Important for preload
-
+	ShareholderID       *uint              `gorm:"column:shareholder_id" json:"shareholder_id"`
+	Shareholder         *Shareholder       `gorm:"foreignKey:ShareholderID" json:"shareholder"`
 }

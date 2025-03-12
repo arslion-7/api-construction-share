@@ -12,10 +12,11 @@ func RegistryRoutes(api *gin.RouterGroup, url string) {
 		routes.GET("/", controllers.GetRegistries)
 		routes.GET("/:id", controllers.GetRegistry)
 		routes.POST("/", controllers.CreateRegistry)
-		routes.PUT("/:id/update_registry_number", controllers.UpdateRegistryNumber)
-		routes.PUT("/:id/update_general_contractor", controllers.UpdateRegistryGeneralContractor)
-		routes.PUT("/:id/update_building", controllers.UpdateRegistryBuilding)
-		routes.PUT("/:id/update_builder", controllers.UpdateRegistryBuilder)
-		routes.PUT("/:id/update_receiver", controllers.UpdateRegistryReceiver)
+		routes.PUT("/:id/registry_number", controllers.UpdateRegistryNumber)
+		routes.PUT("/:id/general_contractor", controllers.UpdateRegistryGeneralContractor)
+		routes.PUT("/:id/building", controllers.UpdateRegistryBuilding)
+		routes.PUT("/:id/builder", controllers.UpdateRegistryBuilder)
+		routes.PUT("/:id/receiver", controllers.UpdateRegistryReceiver)
+		routes.PUT("/:id/shareholder", controllers.UpdateRegistryShareholder)
 	}
 }
