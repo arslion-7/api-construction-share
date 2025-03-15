@@ -8,10 +8,11 @@ type ShareholderAddress struct {
 
 type Phone struct {
 	BaseModel
-	Kind          *string `gorm:"size:3"`
-	Number        *string `gorm:"size:12"`
-	Owner         *string `gorm:"size:125"`
-	ShareholderID uint
+	Kind          *string      `json:"kind" gorm:"size:3"`
+	Number        *string      `json:"number" gorm:"size:12"`
+	Owner         *string      `json:"owner" gorm:"size:125"`
+	ShareholderID uint         `gorm:"column:shareholder_id" json:"shareholder_id"`
+	Shareholder   *Shareholder `gorm:"foreignKey:ShareholderID" json:"shareholder"`
 }
 
 type ShareholderDocs struct {
@@ -28,5 +29,5 @@ type Shareholder struct {
 	Org
 	ShareholderDocs
 	ShareholderAddress
-	Phones []Phone
+	Phones []Phone `json:"phones"`
 }

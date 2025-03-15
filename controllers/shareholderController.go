@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/arslion-7/api-construction-share/initializers"
 	"github.com/arslion-7/api-construction-share/models"
@@ -50,7 +51,7 @@ func GetShareholder(c *gin.Context) {
 
 	var data models.Shareholder
 
-	if err := initializers.DB.Preload("Areas").First(&data, id).Error; err != nil {
+	if err := initializers.DB.Preload("Areas").Preload("Phones").First(&data, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Shareholder not found"})
 			return
@@ -192,6 +193,63 @@ func UpdateShareholderOrg(c *gin.Context) {
 
 	initializers.DB.Save(&data)
 	c.JSON(200, data)
+}
+
+type PhoneInput struct {
+	Kind   *string `json:"kind" gorm:"size:3"`
+	Number *string `json:"number" gorm:"size:12"`
+	Owner  *string `json:"owner" gorm:"size:125"`
+}
+
+type PhoneInputWrapper struct {
+	Phones []PhoneInput `json:"phones"` // Ensure JSON tag matches the expected input structure
+}
+
+func UpdateShareholderPhones(c *gin.Context) {
+	var input PhoneInputWrapper
+	id := c.Param("id")
+
+	// Find existing phone records
+	var existingPhones []models.Phone
+	if err := initializers.DB.Where("shareholder_id = ?", id).Find(&existingPhones).Error; err != nil {
+		c.AbortWithStatusJSON(404, gin.H{"error": "Phones not found"})
+		return
+	}
+
+	// Bind JSON input
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.AbortWithStatusJSON(400, gin.H{"error": "Invalid JSON"})
+		return
+	}
+
+	uintID, _ := strconv.Atoi(id)
+
+	// Update or create phone records
+	var updatedPhones []models.Phone
+	for _, phone := range input.Phones {
+		updatedPhones = append(updatedPhones, models.Phone{
+			Kind:          phone.Kind,
+			Number:        phone.Number,
+			Owner:         phone.Owner,
+			ShareholderID: uint(uintID),
+		})
+	}
+
+	// Delete old records and insert new ones
+	tx := initializers.DB.Begin()
+	if err := tx.Where("shareholder_id = ?", id).Delete(&models.Phone{}).Error; err != nil {
+		tx.Rollback()
+		c.AbortWithStatusJSON(500, gin.H{"error": "Failed to delete old phone records"})
+		return
+	}
+	if err := tx.Create(&updatedPhones).Error; err != nil {
+		tx.Rollback()
+		c.AbortWithStatusJSON(500, gin.H{"error": "Failed to update phone records"})
+		return
+	}
+	tx.Commit()
+
+	c.JSON(200, updatedPhones)
 }
 
 func DeleteShareholder(c *gin.Context) {
