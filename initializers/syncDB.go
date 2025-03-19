@@ -15,6 +15,7 @@ func SyncDB() {
 		&models.Receiver{},
 		&models.Shareholder{},
 		&models.Phone{},
+		&models.ShareholderProperty{},
 	); err != nil {
 		panic("failed to migrate tables: " + err.Error())
 	}
