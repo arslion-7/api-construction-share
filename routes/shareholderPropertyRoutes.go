@@ -11,6 +11,7 @@ func ShareholderPropertyRoutes(api *gin.RouterGroup, url string) {
 	{
 		routes.GET("/", controllers.GetShareholderProperty)
 		routes.POST("/", controllers.CreateShareholderProperty)
+		routes.PUT("/:id", controllers.UpdateShareholderProperty)
 		// routes.PUT("/:id/update_address", controllers.UpdateBuilderAddress)
 		// routes.POST("/", controllers.CreateRegistry)
 	}

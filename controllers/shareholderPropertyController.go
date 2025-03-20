@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -60,4 +61,41 @@ func CreateShareholderProperty(c *gin.Context) {
 	}
 
 	c.JSON(200, newShareholderProperty)
+}
+
+func UpdateShareholderProperty(c *gin.Context) {
+	id := c.Param("id")
+
+	var input models.ShareholderProperty
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	fmt.Println("input", input)
+
+	var shareholderProperty models.ShareholderProperty
+	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&shareholderProperty).Error; err != nil {
+		c.AbortWithStatus(404)
+		return
+	}
+
+	shareholderProperty.BuildingType = input.BuildingType
+	shareholderProperty.Part = input.Part
+	shareholderProperty.Building = input.Building
+	shareholderProperty.Entrance = input.Entrance
+	shareholderProperty.Floor = input.Floor
+	shareholderProperty.Apartment = input.Apartment
+	shareholderProperty.RoomCount = input.RoomCount
+	shareholderProperty.Square = input.Square
+	shareholderProperty.Price = input.Price
+	shareholderProperty.Price1m2 = input.Price1m2
+	shareholderProperty.AdditionalInfo = input.AdditionalInfo
+
+	if err := initializers.DB.Save(&shareholderProperty).Error; err != nil {
+		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, shareholderProperty)
 }
