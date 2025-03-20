@@ -6,6 +6,11 @@ import (
 	"gorm.io/gorm"
 )
 
+type RegistryDates struct {
+	ReviewedAt   *time.Time `json:"reviewed_at"`
+	RegisteredAt *time.Time `json:"registered_at"`
+}
+
 type Registry struct {
 	ID                  uint               `json:"id" gorm:"primarykey"`
 	TB                  *int               `gorm:"column:t_b" json:"t_b"`
@@ -24,4 +29,5 @@ type Registry struct {
 	Receiver            *Receiver          `gorm:"foreignKey:ReceiverID" json:"receiver"` // Important for preload
 	ShareholderID       *uint              `gorm:"column:shareholder_id" json:"shareholder_id"`
 	Shareholder         *Shareholder       `gorm:"foreignKey:ShareholderID" json:"shareholder"`
+	RegistryDates
 }
