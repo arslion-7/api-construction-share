@@ -66,6 +66,7 @@ func GetRegistry(c *gin.Context) {
 		Preload("Building").
 		Preload("Builder").
 		Preload("Receiver").
+		Preload("Shareholder").
 		// Preload("ShareholderProperty").
 		First(&registry, id).Error; err != nil {
 		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
