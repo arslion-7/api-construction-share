@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/arslion-7/api-construction-share/initializers"
 	"github.com/arslion-7/api-construction-share/models"
@@ -76,7 +77,19 @@ func GetRegistry(c *gin.Context) {
 	c.JSON(200, registry)
 }
 
+type MainRegistryInput struct {
+	TB           *int       `gorm:"column:t_b" json:"t_b"`
+	ReviewedAt   *time.Time `json:"reviewed_at"`
+	RegisteredAt *time.Time `json:"registered_at"`
+}
+
 func CreateRegistry(c *gin.Context) {
+	var input MainRegistryInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
 	var registry models.Registry
 
 	user, exists := c.Get("user")
@@ -88,6 +101,9 @@ func CreateRegistry(c *gin.Context) {
 
 	typedUser := user.(models.User)
 
+	registry.TB = input.TB
+	registry.ReviewedAt = input.ReviewedAt
+	registry.RegisteredAt = input.RegisteredAt
 	registry.UserID = &typedUser.ID
 
 	if err := initializers.DB.Save(&registry).Error; err != nil {
@@ -95,6 +111,26 @@ func CreateRegistry(c *gin.Context) {
 		return
 	}
 
+	c.JSON(200, registry)
+}
+
+func UpdateRegistry(c *gin.Context) {
+	var input MainRegistryInput
+
+	var registry models.Registry
+	id := c.Params.ByName("id")
+	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&registry).Error; err != nil {
+		c.AbortWithStatus(404)
+		return
+	}
+
+	c.BindJSON(&input)
+
+	registry.TB = input.TB
+	registry.ReviewedAt = input.ReviewedAt
+	registry.RegisteredAt = input.RegisteredAt
+
+	initializers.DB.Save(&registry)
 	c.JSON(200, registry)
 }
 
