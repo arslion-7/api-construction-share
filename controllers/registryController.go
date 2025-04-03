@@ -114,6 +114,29 @@ func CreateRegistry(c *gin.Context) {
 	c.JSON(200, registry)
 }
 
+func UpdateRegistryMail(c *gin.Context) {
+	var input models.RegistryMail
+
+	var registry models.Registry
+	id := c.Params.ByName("id")
+	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&registry).Error; err != nil {
+		c.AbortWithStatus(404)
+		return
+	}
+
+	c.BindJSON(&input)
+
+	registry.MailDate = input.MailDate
+	registry.MailNumber = input.MailNumber
+	registry.DeliveryDate = input.DeliveryDate
+	registry.Count = input.Count
+	registry.Queue = input.Queue
+	registry.MinToMudDate = input.MinToMudDate
+
+	initializers.DB.Save(&registry)
+	c.JSON(200, registry)
+}
+
 func UpdateRegistry(c *gin.Context) {
 	var input MainRegistryInput
 

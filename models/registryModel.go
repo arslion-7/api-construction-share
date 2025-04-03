@@ -11,6 +11,15 @@ type RegistryDates struct {
 	RegisteredAt *time.Time `json:"registered_at"`
 }
 
+type RegistryMail struct {
+	MailDate     *time.Time `json:"mail_date"`
+	MailNumber   *string    `json:"mail_number"`
+	DeliveryDate *time.Time `json:"delivered_date"`
+	Count        *int       `json:"count"`
+	Queue        *int       `json:"queue"`
+	MinToMudDate *time.Time `json:"min_to_mud_date"`
+}
+
 type Registry struct {
 	ID                  uint               `json:"id" gorm:"primarykey"`
 	TB                  *int               `gorm:"column:t_b" json:"t_b"`
@@ -30,4 +39,5 @@ type Registry struct {
 	ShareholderID       *uint              `gorm:"column:shareholder_id" json:"shareholder_id"`
 	Shareholder         *Shareholder       `gorm:"foreignKey:ShareholderID" json:"shareholder"`
 	RegistryDates
+	RegistryMail
 }
