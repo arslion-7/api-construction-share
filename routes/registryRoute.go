@@ -21,6 +21,7 @@ func RegistryRoutes(api *gin.RouterGroup, url string) {
 		routes.PUT("/:id/builder", controllers.UpdateRegistryBuilder)
 		routes.PUT("/:id/receiver", controllers.UpdateRegistryReceiver)
 		routes.PUT("/:id/shareholder", controllers.UpdateRegistryShareholder)
+		routes.PUT("/:id/contract", controllers.UpdateRegistryContract)
 		// routes.GET("/:id/shareholder_property", controllers.GetShareholderProperty)
 	}
 }

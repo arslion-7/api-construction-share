@@ -289,3 +289,42 @@ func UpdateRegistryShareholder(c *gin.Context) {
 
 	c.JSON(200, registry)
 }
+
+func UpdateRegistryContract(c *gin.Context) {
+	var input models.RegistryContract
+
+	var registry models.Registry
+	id := c.Params.ByName("id")
+	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&registry).Error; err != nil {
+		c.AbortWithStatus(404)
+		return
+	}
+
+	c.BindJSON(&input)
+
+	// registry.ContractBuilderShareholderAddress = input.ContractBuilderContractorAreas
+	// registry.ContractBuilderContractorAddress = input.ContractBuilderContractorAddress
+
+	registry.BuilderContractorNumber = input.BuilderContractorNumber
+	registry.BuilderContractorDate = input.BuilderContractorDate
+	registry.BuilderShareholderNumber = input.BuilderShareholderNumber
+	registry.BuilderShareholderDate = input.BuilderShareholderDate
+	registry.BuilderContractorAdditionalInfo = input.BuilderContractorAdditionalInfo
+	registry.BuilderShareholderAdditionalInfo = input.BuilderShareholderAdditionalInfo
+
+	// areaIDs := input.ContractBuilderShareholderAreas
+
+	// Fetch the areas to associate
+	// var contractBuilderContractorAreas []models.Area
+	// if len(areaIDs) > 0 {
+	// 	if err := initializers.DB.Where("code IN ?", areaIDs).Find(&contractBuilderContractorAreas).Error; err != nil {
+	// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch areas"})
+	// 		return
+	// 	}
+	// }
+
+	initializers.DB.Save(&registry)
+	c.JSON(200, registry)
+
+	c.JSON(200, registry)
+}

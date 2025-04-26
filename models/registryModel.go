@@ -20,6 +20,27 @@ type RegistryMail struct {
 	MinToMudDate *time.Time `json:"min_to_mud_date"`
 }
 
+// type ContractBuilderShareholderAddress struct {
+// 	ContractBuilderShareholderAreas  []Area  `gorm:"many2many:registry_builder_shareholder_areas;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"contract_builder_shareholder_areas"`
+// 	ContractBuilderShareholderStreet *string `gorm:"type:varchar(510);index" json:"contract_builder_shareholder_street"`
+// }
+
+// type ContractBuilderContractorAddress struct {
+// 	ContractBuilderContractorAreas  []Area  `gorm:"many2many:registry_builder_contractor_areas;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"contract_builder_contractor_areas"`
+// 	ContractBuilderContractorStreet *string `gorm:"type:varchar(510);index" json:"contract_builder_contractor_street"`
+// }
+
+type RegistryContract struct {
+	BuilderShareholderNumber         *string    `json:"builder_shareholder_number"`
+	BuilderShareholderDate           *time.Time `json:"builder_shareholder_date"`
+	BuilderShareholderAdditionalInfo *string    `json:"builder_shareholder_additional_info"`
+	// ContractBuilderShareholderAddress
+	BuilderContractorNumber         *string    `json:"builder_contractor_number"`
+	BuilderContractorDate           *time.Time `json:"builder_contractor_date"`
+	BuilderContractorAdditionalInfo *string    `json:"builder_contractor_additional_info"`
+	// ContractBuilderContractorAddress
+}
+
 type Registry struct {
 	ID                  uint               `json:"id" gorm:"primarykey"`
 	TB                  *int               `gorm:"column:t_b" json:"t_b"`
@@ -40,4 +61,5 @@ type Registry struct {
 	Shareholder         *Shareholder       `gorm:"foreignKey:ShareholderID" json:"shareholder"`
 	RegistryDates
 	RegistryMail
+	RegistryContract
 }
