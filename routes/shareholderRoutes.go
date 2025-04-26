@@ -12,8 +12,8 @@ func ShareholderRoutes(api *gin.RouterGroup, url string) {
 		routes.GET("/", controllers.GetShareholders)
 		routes.GET("/:id", controllers.GetShareholder)
 		routes.POST("/", controllers.CreateShareholder)
-		routes.PUT("/:id/update_address", controllers.UpdateShareholderAddress)
-		routes.PUT("/:id/update_docs", controllers.UpdateShareholderDocs)
+		routes.PUT("/:id/address", controllers.UpdateShareholderAddress)
+		routes.PUT("/:id/docs", controllers.UpdateShareholderDocs)
 		routes.PUT("/:id/org", controllers.UpdateShareholderOrg)
 		routes.PUT("/:id/phones", controllers.UpdateShareholderPhones)
 	}

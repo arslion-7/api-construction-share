@@ -179,6 +179,28 @@ func UpdateBuilderAddress(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Builder address updated successfully"})
 }
 
+func UpdateBuilderOrg(c *gin.Context) {
+	var data models.Builder
+	id := c.Param("id")
+	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&data).Error; err != nil {
+		c.AbortWithStatus(404)
+		return
+	}
+
+	var input models.Org
+
+	c.BindJSON(&input)
+
+	data.OrgType = input.OrgType
+	data.OrgName = input.OrgName
+	data.HeadPosition = input.HeadPosition
+	data.HeadFullName = input.HeadFullName
+	data.OrgAdditionalInfo = input.OrgAdditionalInfo
+
+	initializers.DB.Save(&data)
+	c.JSON(200, data)
+}
+
 // // func UpdateBuilderMain(c *gin.Context) {
 // // 	var builder models.Builder
 // // 	id := c.Params.ByName("id")

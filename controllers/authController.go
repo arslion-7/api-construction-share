@@ -84,6 +84,8 @@ func SignIn(c *gin.Context) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": user.ID,
 		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
+		// "exp": time.Now().Add(5 * time.Second).Unix(), // Expiration set to 15 seconds
+
 	})
 	// Sign and get the complete encoded token as a string using the secret
 	hmacSampleSecret := []byte(os.Getenv("SECRET"))
