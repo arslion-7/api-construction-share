@@ -23,6 +23,7 @@ func GetRegistries(c *gin.Context) {
 		Preload("Building").
 		Preload("Builder").
 		Preload("Receiver").
+		Order("t_b").
 		Limit(pagination.PageSize).
 		Offset(pagination.Offset)
 
