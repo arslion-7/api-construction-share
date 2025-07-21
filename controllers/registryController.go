@@ -274,9 +274,9 @@ func GetRegistries(c *gin.Context) {
 		if tb, err := strconv.Atoi(search); err == nil {
 			query = query.Where("t_b = ?", tb) // Search by integer value
 		} else {
-			// Search by Shareholder Org HeadFullName or DocsAdditionalInfo (case-insensitive)
+			// Search by Shareholder OrgName, Org HeadFullName, or DocsAdditionalInfo (case-insensitive)
 			query = query.Joins("JOIN shareholders ON shareholders.id = registries.shareholder_id")
-			query = query.Where("LOWER(shareholders.head_full_name) LIKE ? OR LOWER(shareholders.docs_additional_info) LIKE ?", "%"+lowerSearch+"%", "%"+lowerSearch+"%")
+			query = query.Where("LOWER(shareholders.org_name) LIKE ? OR LOWER(shareholders.head_full_name) LIKE ? OR LOWER(shareholders.docs_additional_info) LIKE ?", "%"+lowerSearch+"%", "%"+lowerSearch+"%", "%"+lowerSearch+"%")
 		}
 	}
 
@@ -300,7 +300,7 @@ func GetRegistries(c *gin.Context) {
 			totalQuery = totalQuery.Where("t_b = ?", tb)
 		} else {
 			totalQuery = totalQuery.Joins("JOIN shareholders ON shareholders.id = registries.shareholder_id")
-			totalQuery = totalQuery.Where("LOWER(shareholders.head_full_name) LIKE ? OR LOWER(shareholders.docs_additional_info) LIKE ?", "%"+lowerSearch+"%", "%"+lowerSearch+"%")
+			totalQuery = totalQuery.Where("LOWER(shareholders.org_name) LIKE ? OR LOWER(shareholders.head_full_name) LIKE ? OR LOWER(shareholders.docs_additional_info) LIKE ?", "%"+lowerSearch+"%", "%"+lowerSearch+"%", "%"+lowerSearch+"%")
 		}
 	}
 	totalQuery.Count(&total)
