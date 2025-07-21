@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/arslion-7/api-construction-share/initializers"
 	"github.com/arslion-7/api-construction-share/models"
@@ -14,6 +15,7 @@ import (
 func GetBuilders(c *gin.Context) {
 	pagination := utils.GetPaginationParams(c)
 	search := c.Query("search")
+	lowerSearch := strings.ToLower(search)
 
 	var data []models.Builder
 	query := initializers.DB.Model(&models.Builder{}).Preload("Areas").
@@ -24,9 +26,16 @@ func GetBuilders(c *gin.Context) {
 		if tb, err := strconv.Atoi(search); err == nil {
 			query = query.Where("t_b = ?", tb) // Search by integer value
 		} else {
-			// Handle cases where search is not a number, e.g., search by other fields if needed.
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid search parameter. t_b must be an integer."})
-			return
+			// Search by organization fields (case-insensitive)
+			searchPattern := "%" + lowerSearch + "%"
+			query = query.Where(`
+				LOWER(org_type) LIKE ? OR 
+				LOWER(org_name) LIKE ? OR 
+				LOWER(head_position) LIKE ? OR 
+				LOWER(head_full_name) LIKE ? OR 
+				LOWER(org_additional_info) LIKE ?
+			`,
+				searchPattern, searchPattern, searchPattern, searchPattern, searchPattern)
 		}
 	}
 
@@ -41,14 +50,21 @@ func GetBuilders(c *gin.Context) {
 		if tb, err := strconv.Atoi(search); err == nil {
 			totalQuery = totalQuery.Where("t_b = ?", tb)
 		} else {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid search parameter. t_b must be an integer."})
-			return
+			// Same search logic for total count
+			searchPattern := "%" + lowerSearch + "%"
+			totalQuery = totalQuery.Where(`
+				LOWER(org_type) LIKE ? OR 
+				LOWER(org_name) LIKE ? OR 
+				LOWER(head_position) LIKE ? OR 
+				LOWER(head_full_name) LIKE ? OR 
+				LOWER(org_additional_info) LIKE ?
+			`,
+				searchPattern, searchPattern, searchPattern, searchPattern, searchPattern)
 		}
 	}
 	totalQuery.Count(&total)
 
 	utils.RespondWithPagination(c, data, pagination, total)
-
 }
 
 func GetBuilder(c *gin.Context) {

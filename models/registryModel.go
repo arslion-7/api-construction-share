@@ -62,4 +62,12 @@ type Registry struct {
 	RegistryDates
 	RegistryMail
 	RegistryContract
+
+	// Computed field for UI: Shareholder description (Org + DocsAdditionalInfo)
+	ShareholderDescription string `gorm:"-" json:"shareholder_description"`
+
+	// Computed fields for UI: Other entity descriptions
+	GeneralContractorDescription string `gorm:"-" json:"general_contractor_description"`
+	BuildingDescription          string `gorm:"-" json:"building_description"`
+	BuilderDescription           string `gorm:"-" json:"builder_description"`
 }

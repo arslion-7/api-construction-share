@@ -25,7 +25,6 @@ $Env:GOOS = "linux"; $Env:GOARCH = "amd64"
 cd api-construction-share
 GOOS=linux GOARCH=amd64 go build -o bin/payly
 pscp bin/payly itadmin@192.168.0.10:/var/www/payly/api/
-pscp .env itadmin@192.168.0.10:/var/www/payly/api/
 plink itadmin@192.168.0.10 "sudo systemctl restart payly.service"
 
 1q2w3e!@A98lk

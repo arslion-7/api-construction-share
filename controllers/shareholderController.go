@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/arslion-7/api-construction-share/initializers"
 	"github.com/arslion-7/api-construction-share/models"
@@ -15,17 +16,33 @@ import (
 func GetShareholders(c *gin.Context) {
 	pagination := utils.GetPaginationParams(c)
 	search := c.Query("search")
+	lowerSearch := strings.ToLower(search)
 
 	var data []models.Shareholder
 	query := initializers.DB.Model(&models.Shareholder{}).
+		Preload("Areas").
+		Preload("Phones").
 		Limit(pagination.PageSize).
 		Offset(pagination.Offset)
 
 	if search != "" {
-		// Search by multiple string fields using ILIKE (case-insensitive)
-		// searchPattern := "%" + strings.ToLower(search) + "%"
-		// query = query.Where("LOWER(citizen_status) LIKE ? OR LOWER(org_name) LIKE ? OR LOWER(department) LIKE ? OR LOWER(position) LIKE ? OR LOWER(firstname) LIKE ? OR LOWER(lastname) LIKE ? OR LOWER(patronymic) LIKE ? OR LOWER(additional_info) LIKE ?",
-		// 	searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern)
+		// Search by organization fields and document fields
+		searchPattern := "%" + lowerSearch + "%"
+		query = query.Where(`
+			LOWER(org_type) LIKE ? OR 
+			LOWER(org_name) LIKE ? OR 
+			LOWER(head_position) LIKE ? OR 
+			LOWER(head_full_name) LIKE ? OR 
+			LOWER(org_additional_info) LIKE ? OR
+			LOWER(passport_series) LIKE ? OR
+			CAST(passport_number AS TEXT) LIKE ? OR
+			LOWER(patent_series) LIKE ? OR
+			CAST(patent_number AS TEXT) LIKE ? OR
+			CAST(cert_number AS TEXT) LIKE ? OR
+			LOWER(docs_additional_info) LIKE ?
+		`,
+			searchPattern, searchPattern, searchPattern, searchPattern, searchPattern,
+			searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern)
 	}
 
 	if err := query.Find(&data).Error; err != nil {
@@ -37,9 +54,22 @@ func GetShareholders(c *gin.Context) {
 	totalQuery := initializers.DB.Model(&models.Shareholder{})
 	if search != "" {
 		// Same search logic for total count
-		// searchPattern := "%" + strings.ToLower(search) + "%"
-		// totalQuery = totalQuery.Where("LOWER(citizen_status) LIKE ? OR LOWER(org_name) LIKE ? OR LOWER(department) LIKE ? OR LOWER(position) LIKE ? OR LOWER(firstname) LIKE ? OR LOWER(lastname) LIKE ? OR LOWER(patronymic) LIKE ? OR LOWER(additional_info) LIKE ?",
-		// 	searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern)
+		searchPattern := "%" + lowerSearch + "%"
+		totalQuery = totalQuery.Where(`
+			LOWER(org_type) LIKE ? OR 
+			LOWER(org_name) LIKE ? OR 
+			LOWER(head_position) LIKE ? OR 
+			LOWER(head_full_name) LIKE ? OR 
+			LOWER(org_additional_info) LIKE ? OR
+			LOWER(passport_series) LIKE ? OR
+			CAST(passport_number AS TEXT) LIKE ? OR
+			LOWER(patent_series) LIKE ? OR
+			CAST(patent_number AS TEXT) LIKE ? OR
+			CAST(cert_number AS TEXT) LIKE ? OR
+			LOWER(docs_additional_info) LIKE ?
+		`,
+			searchPattern, searchPattern, searchPattern, searchPattern, searchPattern,
+			searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern)
 	}
 	totalQuery.Count(&total)
 
