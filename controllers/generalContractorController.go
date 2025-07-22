@@ -17,6 +17,7 @@ func GetGeneralContractors(c *gin.Context) {
 	// Fetch data
 	var data []models.GeneralContractor
 	query := initializers.DB.Model(&models.GeneralContractor{}).
+		Order("id").
 		Limit(pagination.PageSize).
 		Offset(pagination.Offset)
 
@@ -33,7 +34,7 @@ func GetGeneralContractors(c *gin.Context) {
 
 	// Get total count with the same search condition
 	var total int64
-	totalQuery := initializers.DB.Model(&models.GeneralContractor{})
+	totalQuery := initializers.DB.Model(&models.GeneralContractor{}).Order("id")
 	if search != "" {
 		totalQuery = totalQuery.Where("LOWER(org_name) LIKE ?", "%"+strings.ToLower(search)+"%")
 	}
