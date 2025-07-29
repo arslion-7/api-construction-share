@@ -42,7 +42,7 @@ func GetDashboardStats(c *gin.Context) {
 	// Get registries count by user
 	var userStats []UserRegistryStats
 	if err := initializers.DB.Table("registries").
-		Select("registries.user_id, users.full_name as user_name, users.email as user_email, COUNT(*) as count").
+		Select("registries.user_id, COALESCE(users.full_name, 'Unknown User') as user_name, users.email as user_email, COUNT(*) as count").
 		Joins("LEFT JOIN users ON registries.user_id = users.id").
 		Where("registries.deleted_at IS NULL").
 		Group("registries.user_id, users.full_name, users.email").
