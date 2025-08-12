@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/arslion-7/api-construction-share/initializers"
 	"github.com/arslion-7/api-construction-share/models"
@@ -100,4 +101,75 @@ func GetOldRegistry(c *gin.Context) {
 	}
 
 	c.JSON(200, oldRegistry)
+}
+
+// UpdateOldRegistry handles PUT request to update "Alan" fields
+func UpdateOldRegistry(c *gin.Context) {
+	id := c.Param("id")
+
+	// Find the record first
+	var oldRegistry models.OldRegistry
+	if err := initializers.DB.Where("t_b = ?", id).First(&oldRegistry).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Old registry not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch old registry"})
+		return
+	}
+
+	// Parse request body
+	var requestBody struct {
+		WezipeAlanAdam  *string `json:"wezipe_alan_adam"`
+		AdyAlanAdam     *string `json:"ady_alan_adam"`
+		SeneSanSertnama *string `json:"sene_san_sertnama"`
+	}
+
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	// Update fields if provided
+	updates := make(map[string]interface{})
+
+	if requestBody.WezipeAlanAdam != nil {
+		updates["wezipe_alan_adam"] = *requestBody.WezipeAlanAdam
+	}
+
+	if requestBody.AdyAlanAdam != nil {
+		updates["ady_alan_adam"] = *requestBody.AdyAlanAdam
+	}
+
+	if requestBody.SeneSanSertnama != nil {
+		// Parse date string to time.Time
+		if dateStr := *requestBody.SeneSanSertnama; dateStr != "" {
+			if parsedDate, err := time.Parse("2006-01-02", dateStr); err == nil {
+				updates["sene_san_sertnama"] = parsedDate
+			} else {
+				// If date parsing fails, store as string
+				updates["sene_san_sertnama"] = dateStr
+			}
+		}
+	}
+
+	// Add updated_at timestamp
+	updates["updated_at"] = time.Now()
+
+	// Update the record
+	if err := initializers.DB.Model(&oldRegistry).Updates(updates).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update old registry"})
+		return
+	}
+
+	// Fetch the updated record
+	if err := initializers.DB.Where("t_b = ?", id).First(&oldRegistry).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch updated record"})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"message": "Old registry updated successfully",
+		"data":    oldRegistry,
+	})
 }

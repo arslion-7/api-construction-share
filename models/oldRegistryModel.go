@@ -7,7 +7,7 @@ import (
 // OldRegistry represents the legacy mainpayly table from MySQL
 type OldRegistry struct {
 	BaseModel
-	TB                   uint       `gorm:"column:t_b;primaryKey;type:bigint" json:"t_b"`
+	TB                   uint       `gorm:"column:t_b;type:bigint;index" json:"t_b"`
 	MinHat               *string    `gorm:"column:min_hat;type:varchar(150)" json:"min_hat"`
 	SeneHatMinToMud      *time.Time `gorm:"column:sene_hat_min_to_mud;type:date" json:"sene_hat_min_to_mud"`
 	Gurujy               *string    `gorm:"column:gurujy;type:varchar(255)" json:"gurujy"`

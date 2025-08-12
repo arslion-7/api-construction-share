@@ -10,5 +10,6 @@ func OldRegistryRoutes(router *gin.Engine) {
 	{
 		oldRegistryGroup.GET("/", controllers.GetOldRegistries)
 		oldRegistryGroup.GET("/:id", controllers.GetOldRegistry)
+		oldRegistryGroup.PUT("/:id", controllers.UpdateOldRegistry)
 	}
 }
