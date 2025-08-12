@@ -17,6 +17,7 @@ func GetReceivers(c *gin.Context) {
 
 	var data []models.Receiver
 	query := initializers.DB.Model(&models.Receiver{}).
+		Order("id").
 		Limit(pagination.PageSize).
 		Offset(pagination.Offset)
 

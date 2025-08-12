@@ -19,6 +19,7 @@ func GetBuilders(c *gin.Context) {
 
 	var data []models.Builder
 	query := initializers.DB.Model(&models.Builder{}).Preload("Areas").
+		Order("id").
 		Limit(pagination.PageSize).
 		Offset(pagination.Offset)
 

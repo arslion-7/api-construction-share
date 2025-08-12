@@ -30,17 +30,23 @@ func GetOldRegistries(c *gin.Context) {
 
 	// Add search functionality
 	if search != "" {
-		searchQuery := "%" + search + "%"
-		query = query.Where(
-			initializers.DB.Where("min_hat ILIKE ?", searchQuery).
-				Or("gurujy ILIKE ?", searchQuery).
-				Or("paychy ILIKE ?", searchQuery).
-				Or("desga ILIKE ?", searchQuery).
-				Or("salgy_desga ILIKE ?", searchQuery).
-				Or("salgy_gurujy ILIKE ?", searchQuery).
-				Or("salgy_paychy ILIKE ?", searchQuery).
-				Or("login ILIKE ?", searchQuery),
-		)
+		if tb, err := strconv.Atoi(search); err == nil {
+			// Search by t_b if the search term can be converted to an integer
+			query = query.Where("t_b = ?", tb)
+		} else {
+			// Search by text fields if the search term is not a number
+			searchQuery := "%" + search + "%"
+			query = query.Where(
+				initializers.DB.Where("min_hat ILIKE ?", searchQuery).
+					Or("gurujy ILIKE ?", searchQuery).
+					Or("paychy ILIKE ?", searchQuery).
+					Or("desga ILIKE ?", searchQuery).
+					Or("salgy_desga ILIKE ?", searchQuery).
+					Or("salgy_gurujy ILIKE ?", searchQuery).
+					Or("salgy_paychy ILIKE ?", searchQuery).
+					Or("login ILIKE ?", searchQuery),
+			)
+		}
 	}
 
 	// Get total count

@@ -3,7 +3,6 @@ package controllers
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/arslion-7/api-construction-share/initializers"
@@ -19,25 +18,34 @@ func GetBuildings(c *gin.Context) {
 
 	var data []models.Building
 	query := initializers.DB.Model(&models.Building{}).Preload("Areas").
+		Order("id").
 		Limit(pagination.PageSize).
 		Offset(pagination.Offset)
 
 	if search != "" {
 		lowerSearch := strings.ToLower(search)
-		if tb, err := strconv.Atoi(search); err == nil {
-			query = query.Where("t_b = ?", tb) // Search by integer value
-		} else {
-			// Search by order and cert fields (case-insensitive)
-			searchPattern := "%" + lowerSearch + "%"
-			query = query.Where(`
-							   LOWER(order_whose_what) LIKE ? OR
-							   LOWER(order_code) LIKE ? OR
-							   LOWER(order_additional_info) LIKE ? OR
-							   LOWER(cert_1_code) LIKE ? OR
-							   LOWER(cert_2_code) LIKE ?
-					   `,
-				searchPattern, searchPattern, searchPattern, searchPattern, searchPattern)
-		}
+		// Search by all building fields except date fields (case-insensitive)
+		searchPattern := "%" + lowerSearch + "%"
+		query = query.Where(`
+						   LOWER(order_whose_what) LIKE ? OR
+						   LOWER(order_code) LIKE ? OR
+						   LOWER(order_additional_info) LIKE ? OR
+						   LOWER(cert_name) LIKE ? OR
+						   LOWER(cert1_code) LIKE ? OR
+						   LOWER(cert2_code) LIKE ? OR
+						   LOWER(kind) LIKE ? OR
+						   LOWER(street) LIKE ? OR
+						   CAST(ident_number AS TEXT) LIKE ? OR
+						   CAST(price AS TEXT) LIKE ? OR
+						   CAST(percentage AS TEXT) LIKE ? OR
+						   LOWER(square1_name) LIKE ? OR
+						   LOWER(square2_name) LIKE ? OR
+						   LOWER(square3_name) LIKE ? OR
+						   LOWER(square_additional_info) LIKE ?
+				   `,
+			searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern,
+			searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern,
+			searchPattern, searchPattern, searchPattern)
 	}
 
 	if err := query.Find(&data).Error; err != nil {
@@ -49,19 +57,27 @@ func GetBuildings(c *gin.Context) {
 	totalQuery := initializers.DB.Model(&models.Building{})
 	if search != "" {
 		lowerSearch := strings.ToLower(search)
-		if tb, err := strconv.Atoi(search); err == nil {
-			totalQuery = totalQuery.Where("t_b = ?", tb)
-		} else {
-			searchPattern := "%" + lowerSearch + "%"
-			totalQuery = totalQuery.Where(`
-							   LOWER(order_whose_what) LIKE ? OR
-							   LOWER(order_code) LIKE ? OR
-							   LOWER(order_additional_info) LIKE ? OR
-							   LOWER(cert_1_code) LIKE ? OR
-							   LOWER(cert_2_code) LIKE ?
-					   `,
-				searchPattern, searchPattern, searchPattern, searchPattern, searchPattern)
-		}
+		searchPattern := "%" + lowerSearch + "%"
+		totalQuery = totalQuery.Where(`
+						   LOWER(order_whose_what) LIKE ? OR
+						   LOWER(order_code) LIKE ? OR
+						   LOWER(order_additional_info) LIKE ? OR
+						   LOWER(cert_name) LIKE ? OR
+						   LOWER(cert1_code) LIKE ? OR
+						   LOWER(cert2_code) LIKE ? OR
+						   LOWER(kind) LIKE ? OR
+						   LOWER(street) LIKE ? OR
+						   CAST(ident_number AS TEXT) LIKE ? OR
+						   CAST(price AS TEXT) LIKE ? OR
+						   CAST(percentage AS TEXT) LIKE ? OR
+						   LOWER(square1_name) LIKE ? OR
+						   LOWER(square2_name) LIKE ? OR
+						   LOWER(square3_name) LIKE ? OR
+						   LOWER(square_additional_info) LIKE ?
+				   `,
+			searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern,
+			searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern,
+			searchPattern, searchPattern, searchPattern)
 	}
 	totalQuery.Count(&total)
 

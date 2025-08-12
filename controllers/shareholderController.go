@@ -22,6 +22,7 @@ func GetShareholders(c *gin.Context) {
 	query := initializers.DB.Model(&models.Shareholder{}).
 		Preload("Areas").
 		Preload("Phones").
+		Order("id").
 		Limit(pagination.PageSize).
 		Offset(pagination.Offset)
 
