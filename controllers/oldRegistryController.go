@@ -142,15 +142,8 @@ func UpdateOldRegistry(c *gin.Context) {
 	}
 
 	if requestBody.SeneSanSertnama != nil {
-		// Parse date string to time.Time
-		if dateStr := *requestBody.SeneSanSertnama; dateStr != "" {
-			if parsedDate, err := time.Parse("2006-01-02", dateStr); err == nil {
-				updates["sene_san_sertnama"] = parsedDate
-			} else {
-				// If date parsing fails, store as string
-				updates["sene_san_sertnama"] = dateStr
-			}
-		}
+		// Since the database field is varchar, store as string
+		updates["sene_san_sertnama"] = *requestBody.SeneSanSertnama
 	}
 
 	// Add updated_at timestamp
