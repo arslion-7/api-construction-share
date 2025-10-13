@@ -25,6 +25,7 @@ func SetupRoutes() *gin.Engine {
 		ShareholderRoutes(api, "/shareholders")
 		ShareholderPropertyRoutes(api, "/shareholder_properties")
 		RegistryRoutes(api, "/registries")
+		AdditionalAgreementRoutes(api)
 		OldRegistryRoutes(r)
 		DashboardRoutes(r)
 	}

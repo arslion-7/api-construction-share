@@ -123,6 +123,8 @@ func UpdateOldRegistry(c *gin.Context) {
 		WezipeAlanAdam  *string `json:"wezipe_alan_adam"`
 		AdyAlanAdam     *string `json:"ady_alan_adam"`
 		SeneSanSertnama *string `json:"sene_san_sertnama"`
+		AdyPaychyAlan   *string `json:"ady_paychy_alan"`
+		SenePaychyAlan  *string `json:"sene_paychy_alan"`
 	}
 
 	if err := c.ShouldBindJSON(&requestBody); err != nil {
@@ -144,6 +146,14 @@ func UpdateOldRegistry(c *gin.Context) {
 	if requestBody.SeneSanSertnama != nil {
 		// Since the database field is varchar, store as string
 		updates["sene_san_sertnama"] = *requestBody.SeneSanSertnama
+	}
+
+	if requestBody.AdyPaychyAlan != nil {
+		updates["ady_paychy_alan"] = *requestBody.AdyPaychyAlan
+	}
+
+	if requestBody.SenePaychyAlan != nil {
+		updates["sene_paychy_alan"] = *requestBody.SenePaychyAlan
 	}
 
 	// Add updated_at timestamp
