@@ -586,3 +586,23 @@ func UpdateRegistryContract(c *gin.Context) {
 
 	c.JSON(200, registry)
 }
+
+func UpdateRegistryDenial(c *gin.Context) {
+	var input models.RegistryDenial
+
+	var registry models.Registry
+	id := c.Params.ByName("id")
+	if err := initializers.DB.Unscoped().Where("id = ?", id).First(&registry).Error; err != nil {
+		c.AbortWithStatus(404)
+		return
+	}
+
+	c.BindJSON(&input)
+
+	registry.DenialReason = input.DenialReason
+	registry.DenialDate = input.DenialDate
+	registry.DenialAdditionalInfo = input.DenialAdditionalInfo
+
+	initializers.DB.Save(&registry)
+	c.JSON(200, registry)
+}

@@ -41,6 +41,12 @@ type RegistryContract struct {
 	// ContractBuilderContractorAddress
 }
 
+type RegistryDenial struct {
+	DenialReason         *string    `json:"denial_reason"`
+	DenialDate           *time.Time `json:"denial_date"`
+	DenialAdditionalInfo *string    `json:"denial_additional_info"`
+}
+
 type Registry struct {
 	ID                  uint               `json:"id" gorm:"primarykey"`
 	TB                  *int               `gorm:"column:t_b" json:"t_b"`
@@ -62,6 +68,7 @@ type Registry struct {
 	RegistryDates
 	RegistryMail
 	RegistryContract
+	RegistryDenial
 
 	// Computed field for UI: Shareholder description (Org + DocsAdditionalInfo)
 	ShareholderDescription string `gorm:"-" json:"shareholder_description"`
