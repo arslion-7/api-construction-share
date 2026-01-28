@@ -19,13 +19,26 @@ CREATE TABLE IF NOT EXISTS `sertnamalar`
 
 CREATE TABLE IF NOT EXISTS `forma_sobstv` // Can be implemented only on front
 
-If you use Powershell, use below for deploy compiling
+### Deploy compiling
 
+**Mac/Linux (Bash):**
+
+```bash
+cd api-construction-share
+GOOS=linux GOARCH=amd64 go build -o bin/payly
+scp bin/payly itadmin@192.168.0.10:/var/www/payly/api/
+ssh itadmin@192.168.0.10 "sudo systemctl restart payly.service"
+```
+
+**Windows (Powershell):**
+
+```powershell
 cd api-construction-share
 $Env:GOOS = "linux"; $Env:GOARCH = "amd64"
 go build -o bin/payly
 pscp bin/payly itadmin@192.168.0.10:/var/www/payly/api/
 plink itadmin@192.168.0.10 "sudo systemctl restart payly.service"
+```
 
 1q2w3e!@A98lk
 

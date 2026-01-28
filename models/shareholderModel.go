@@ -17,7 +17,7 @@ type Phone struct {
 
 type ShareholderDocs struct {
 	PassportSeries     *string `json:"passport_series" gorm:"size:6"`
-	PassportNumber     *uint   `json:"passport_number" gorm:"type:integer"` // Use uint for positive integers
+	PassportNumber     *string `json:"passport_number" gorm:"size:6"`
 	PatentSeries       *string `json:"patent_series" gorm:"size:2"`
 	PatentNumber       *uint   `json:"patent_number" gorm:"type:integer"`
 	CertNumber         *uint   `json:"cert_number" gorm:"type:integer"`

@@ -30,10 +30,10 @@ func GetShareholders(c *gin.Context) {
 		// Search by organization fields and document fields
 		searchPattern := "%" + lowerSearch + "%"
 		query = query.Where(`
-			LOWER(org_type) LIKE ? OR 
-			LOWER(org_name) LIKE ? OR 
-			LOWER(head_position) LIKE ? OR 
-			LOWER(head_full_name) LIKE ? OR 
+			LOWER(org_type) LIKE ? OR
+			LOWER(org_name) LIKE ? OR
+			LOWER(head_position) LIKE ? OR
+			LOWER(head_full_name) LIKE ? OR
 			LOWER(org_additional_info) LIKE ? OR
 			LOWER(passport_series) LIKE ? OR
 			CAST(passport_number AS TEXT) LIKE ? OR
@@ -57,10 +57,10 @@ func GetShareholders(c *gin.Context) {
 		// Same search logic for total count
 		searchPattern := "%" + lowerSearch + "%"
 		totalQuery = totalQuery.Where(`
-			LOWER(org_type) LIKE ? OR 
-			LOWER(org_name) LIKE ? OR 
-			LOWER(head_position) LIKE ? OR 
-			LOWER(head_full_name) LIKE ? OR 
+			LOWER(org_type) LIKE ? OR
+			LOWER(org_name) LIKE ? OR
+			LOWER(head_position) LIKE ? OR
+			LOWER(head_full_name) LIKE ? OR
 			LOWER(org_additional_info) LIKE ? OR
 			LOWER(passport_series) LIKE ? OR
 			CAST(passport_number AS TEXT) LIKE ? OR
@@ -281,6 +281,26 @@ func UpdateShareholderPhones(c *gin.Context) {
 	tx.Commit()
 
 	c.JSON(200, updatedPhones)
+}
+
+type InvalidPassportResult struct {
+	ID             uint    `json:"id"`
+	PassportNumber *string `json:"passport_number"`
+}
+
+func GetInvalidPassports(c *gin.Context) {
+	var results []InvalidPassportResult
+
+	// Find shareholders where passport_number is not null and doesn't have exactly 6 digits
+	if err := initializers.DB.Model(&models.Shareholder{}).
+		Select("id, passport_number").
+		Where("passport_number IS NOT NULL AND LENGTH(passport_number) != 6").
+		Find(&results).Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Failed to retrieve data", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, results)
 }
 
 func DeleteShareholder(c *gin.Context) {

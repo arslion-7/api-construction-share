@@ -587,6 +587,35 @@ func UpdateRegistryContract(c *gin.Context) {
 	c.JSON(200, registry)
 }
 
+type DuplicateTBResult struct {
+	ID uint `json:"id" gorm:"column:id"`
+	TB int  `json:"t_b" gorm:"column:t_b"`
+}
+
+func GetDuplicateTBs(c *gin.Context) {
+	var results []DuplicateTBResult
+
+	// Find registries where t_b appears more than once
+	// First, get all t_b values that have duplicates
+	subQuery := initializers.DB.Model(&models.Registry{}).
+		Select("t_b").
+		Where("t_b IS NOT NULL").
+		Group("t_b").
+		Having("COUNT(*) > 1")
+
+	// Then get all registries with those t_b values
+	if err := initializers.DB.Model(&models.Registry{}).
+		Select("id, t_b").
+		Where("t_b IN (?)", subQuery).
+		Order("t_b, id").
+		Find(&results).Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Failed to retrieve data", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, results)
+}
+
 func UpdateRegistryDenial(c *gin.Context) {
 	var input models.RegistryDenial
 
