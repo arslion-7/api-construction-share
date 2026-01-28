@@ -21,11 +21,11 @@ build:
 # Deploy the binary and .env file to the remote server
 deploy: build
 	@echo "Stopping the service on remote server..."
-	ssh $(REMOTE_SERVER) "sudo systemctl stop $(SERVICE_NAME)"
+	ssh -t $(REMOTE_SERVER) "sudo systemctl stop $(SERVICE_NAME)"
 	@echo "Deploying binary and .env file to $(REMOTE_SERVER)..."
 	scp $(BUILD_DIR)/$(BINARY_NAME) $(ENV_FILE) $(REMOTE_SERVER):$(REMOTE_PATH)
 	@echo "Starting the service on remote server..."
-	ssh $(REMOTE_SERVER) "sudo systemctl start $(SERVICE_NAME)"
+	ssh -t $(REMOTE_SERVER) "sudo systemctl start $(SERVICE_NAME)"
 	@echo "Deployment complete."
 
 # Deploy all (API + client) using root Makefile
