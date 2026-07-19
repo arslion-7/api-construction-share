@@ -257,6 +257,9 @@ func GetRegistries(c *gin.Context) {
 	pagination := utils.GetPaginationParams(c)
 	search := c.Query("search")
 	lowerSearch := strings.ToLower(search)
+	// source=old -> only registries migrated from old_registries,
+	// source=new -> only manually created ones
+	source := c.Query("source")
 
 	var data []models.Registry
 	query := initializers.DB.Model(&models.Registry{}).
@@ -269,6 +272,13 @@ func GetRegistries(c *gin.Context) {
 		Order("t_b").
 		Limit(pagination.PageSize).
 		Offset(pagination.Offset)
+
+	switch source {
+	case "old":
+		query = query.Where("old_registry_id IS NOT NULL")
+	case "new":
+		query = query.Where("old_registry_id IS NULL")
+	}
 
 	if search != "" {
 		if tb, err := strconv.Atoi(search); err == nil {
@@ -295,6 +305,12 @@ func GetRegistries(c *gin.Context) {
 
 	var total int64
 	totalQuery := initializers.DB.Model(&models.Registry{})
+	switch source {
+	case "old":
+		totalQuery = totalQuery.Where("old_registry_id IS NOT NULL")
+	case "new":
+		totalQuery = totalQuery.Where("old_registry_id IS NULL")
+	}
 	if search != "" {
 		if tb, err := strconv.Atoi(search); err == nil {
 			totalQuery = totalQuery.Where("t_b = ?", tb)
