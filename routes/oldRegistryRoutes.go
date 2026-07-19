@@ -13,5 +13,6 @@ func OldRegistryRoutes(router *gin.Engine) {
 		oldRegistryGroup.GET("/:id", controllers.GetOldRegistry)
 		oldRegistryGroup.PUT("/:id", controllers.UpdateOldRegistry)
 		oldRegistryGroup.POST("/migrate", middlewares.RequireAuth, controllers.MigrateOldRegistries)
+		oldRegistryGroup.POST("/rollback-migration", middlewares.RequireAuth, controllers.RollbackOldRegistriesMigration)
 	}
 }
