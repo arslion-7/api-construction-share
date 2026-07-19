@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/arslion-7/api-construction-share/controllers"
+	"github.com/arslion-7/api-construction-share/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,5 +12,6 @@ func OldRegistryRoutes(router *gin.Engine) {
 		oldRegistryGroup.GET("/", controllers.GetOldRegistries)
 		oldRegistryGroup.GET("/:id", controllers.GetOldRegistry)
 		oldRegistryGroup.PUT("/:id", controllers.UpdateOldRegistry)
+		oldRegistryGroup.POST("/migrate", middlewares.RequireAuth, controllers.MigrateOldRegistries)
 	}
 }

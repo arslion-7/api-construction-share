@@ -103,6 +103,113 @@ func GetOldRegistry(c *gin.Context) {
 	c.JSON(200, oldRegistry)
 }
 
+// MigrateOldRegistries handles POST request to copy every not-yet-migrated
+// old registry into the registries table. Legacy values are kept verbatim in
+// the old_* columns; only t_b, reviewed_at and min_to_mud_date are also
+// mapped to their typed counterparts. Idempotent: rows already linked via
+// old_registry_id are skipped, so duplicates by t_b are allowed by design.
+func MigrateOldRegistries(c *gin.Context) {
+	user, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "user not authenticated"})
+		return
+	}
+	typedUser := user.(models.User)
+
+	var total int64
+	if err := initializers.DB.Model(&models.OldRegistry{}).Count(&total).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count old registries"})
+		return
+	}
+
+	migratedSubQuery := initializers.DB.Model(&models.Registry{}).
+		Select("old_registry_id").
+		Where("old_registry_id IS NOT NULL")
+
+	var oldRegistries []models.OldRegistry
+	if err := initializers.DB.
+		Where("id NOT IN (?)", migratedSubQuery).
+		Order("t_b").
+		Find(&oldRegistries).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch old registries"})
+		return
+	}
+
+	if len(oldRegistries) == 0 {
+		c.JSON(200, gin.H{
+			"message":  "Nothing to migrate, all old registries are already migrated",
+			"total":    total,
+			"migrated": 0,
+			"skipped":  total,
+		})
+		return
+	}
+
+	registries := make([]models.Registry, 0, len(oldRegistries))
+	for _, old := range oldRegistries {
+		oldID := old.ID
+		oldTB := old.TB
+		tb := int(old.TB)
+
+		registries = append(registries, models.Registry{
+			TB:     &tb,
+			UserID: &typedUser.ID,
+			RegistryDates: models.RegistryDates{
+				ReviewedAt: old.SeneSeredilen,
+			},
+			RegistryMail: models.RegistryMail{
+				MinToMudDate: old.SeneHatMinToMud,
+			},
+			RegistryOldData: models.RegistryOldData{
+				OldRegistryID:           &oldID,
+				OldTB:                   &oldTB,
+				OldMinHat:               old.MinHat,
+				OldSeneHatMinToMud:      old.SeneHatMinToMud,
+				OldGurujy:               old.Gurujy,
+				OldPaychy:               old.Paychy,
+				OldSertnamaGurujyPaychy: old.SertnamaGurujyPaychy,
+				OldDesga:                old.Desga,
+				OldBahaUmumy:            old.BahaUmumy,
+				OldMeydanUmumy:          old.MeydanUmumy,
+				OldKepResminama:         old.KepResminama,
+				OldEmlakPaychy:          old.EmlakPaychy,
+				OldBahaPaychy:           old.BahaPaychy,
+				OldBaha1m2Paychy:        old.Baha1m2Paychy,
+				OldSalgyDesga:           old.SalgyDesga,
+				OldSalgyGurujy:          old.SalgyGurujy,
+				OldSalgyPaychy:          old.SalgyPaychy,
+				OldBashPotr:             old.BashPotr,
+				OldSertnamaGurPotr:      old.SertnamaGurPotr,
+				OldPotratchyKomek:       old.PotratchyKomek,
+				OldShahadatnama:         old.Shahadatnama,
+				OldYgtyyarnama:          old.Ygtyyarnama,
+				OldPatentPasport:        old.PatentPasport,
+				OldSeneBashySongy:       old.SeneBashySongy,
+				OldSeneSeredilen:        old.SeneSeredilen,
+				OldSeneHasabaAlnan:      old.SeneHasabaAlnan,
+				OldWezipeAlanAdam:       old.WezipeAlanAdam,
+				OldAdyAlanAdam:          old.AdyAlanAdam,
+				OldSeneSanSertnama:      old.SeneSanSertnama,
+				OldAdyPaychyAlan:        old.AdyPaychyAlan,
+				OldSenePaychyAlan:       old.SenePaychyAlan,
+				OldLogin:                old.Login,
+			},
+		})
+	}
+
+	if err := initializers.DB.CreateInBatches(&registries, 100).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to migrate old registries", "details": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"message":  "Old registries migrated successfully",
+		"total":    total,
+		"migrated": len(registries),
+		"skipped":  total - int64(len(registries)),
+	})
+}
+
 // UpdateOldRegistry handles PUT request to update "Alan" fields
 func UpdateOldRegistry(c *gin.Context) {
 	id := c.Param("id")
