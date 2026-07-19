@@ -10,4 +10,6 @@ type Builder struct {
 	BaseModel
 	BuilderAddress
 	Org
+	// true when this record was created by the old-registries migration
+	FromOldRegistry bool `gorm:"column:from_old_registry;default:false;index" json:"from_old_registry"`
 }
