@@ -11,6 +11,7 @@ import (
 	"github.com/arslion-7/api-construction-share/models"
 	"github.com/arslion-7/api-construction-share/utils"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 // generateShareholderDescription creates a description from shareholder org info and docs additional info
@@ -253,42 +254,91 @@ func generateBuilderDescription(builder *models.Builder) string {
 	return strings.Join(parts, "\n")
 }
 
-func GetRegistries(c *gin.Context) {
-	pagination := utils.GetPaginationParams(c)
-	search := c.Query("search")
-	lowerSearch := strings.ToLower(search)
-	// source=old -> only registries migrated from old_registries,
-	// source=new -> only manually created ones
-	source := c.Query("source")
-
-	var data []models.Registry
-	query := initializers.DB.Model(&models.Registry{}).
-		Preload("User").
-		Preload("GeneralContractor").
-		Preload("Building").
-		Preload("Builder").
-		Preload("Receiver").
-		Preload("Shareholder").
-		Order("t_b").
-		Limit(pagination.PageSize).
-		Offset(pagination.Offset)
-
-	switch source {
-	case "old":
-		query = query.Where("old_registry_id IS NOT NULL")
-	case "new":
-		query = query.Where("old_registry_id IS NULL")
-	}
-
-	if search != "" {
-		if tb, err := strconv.Atoi(search); err == nil {
-			query = query.Where("t_b = ?", tb) // Search by integer value
-		} else {
-			// Search by Shareholder OrgName, Org HeadFullName, or DocsAdditionalInfo (case-insensitive)
-			query = query.Joins("JOIN shareholders ON shareholders.id = registries.shareholder_id")
-			query = query.Where("LOWER(shareholders.org_name) LIKE ? OR LOWER(shareholders.head_full_name) LIKE ? OR LOWER(shareholders.docs_additional_info) LIKE ?", "%"+lowerSearch+"%", "%"+lowerSearch+"%", "%"+lowerSearch+"%")
+// applyRegistryListFilters applies source/search/column filters shared by the
+// data and count queries of GetRegistries
+func applyRegistryListFilters(db *gorm.DB, c *gin.Context) *gorm.DB {
+	shareholdersJoined := false
+	joinShareholders := func() {
+		if !shareholdersJoined {
+			db = db.Joins("LEFT JOIN shareholders ON shareholders.id = registries.shareholder_id")
+			shareholdersJoined = true
 		}
 	}
+
+	// source=old -> only registries migrated from old_registries,
+	// source=new -> only manually created ones
+	switch c.Query("source") {
+	case "old":
+		db = db.Where("registries.old_registry_id IS NOT NULL")
+	case "new":
+		db = db.Where("registries.old_registry_id IS NULL")
+	}
+
+	if search := c.Query("search"); search != "" {
+		if tb, err := strconv.Atoi(search); err == nil {
+			db = db.Where("registries.t_b = ?", tb)
+		} else {
+			joinShareholders()
+			like := "%" + strings.ToLower(search) + "%"
+			db = db.Where("LOWER(shareholders.org_name) LIKE ? OR LOWER(shareholders.head_full_name) LIKE ? OR LOWER(shareholders.docs_additional_info) LIKE ?", like, like, like)
+		}
+	}
+
+	// column filters
+	if tbStr := strings.TrimSpace(c.Query("t_b")); tbStr != "" {
+		if tb, err := strconv.Atoi(tbStr); err == nil {
+			db = db.Where("registries.t_b = ?", tb)
+		}
+	}
+	if ids := parseIDList(c.Query("gc_ids")); len(ids) > 0 {
+		db = db.Where("registries.general_contractor_id IN ?", ids)
+	}
+	if ids := parseIDList(c.Query("user_ids")); len(ids) > 0 {
+		db = db.Where("registries.user_id IN ?", ids)
+	}
+	if q := strings.TrimSpace(c.Query("shareholder_q")); q != "" {
+		joinShareholders()
+		like := "%" + strings.ToLower(q) + "%"
+		db = db.Where("LOWER(shareholders.org_name) LIKE ? OR LOWER(shareholders.head_full_name) LIKE ? OR LOWER(shareholders.docs_additional_info) LIKE ?", like, like, like)
+	}
+	if q := strings.TrimSpace(c.Query("builder_q")); q != "" {
+		like := "%" + strings.ToLower(q) + "%"
+		db = db.Joins("LEFT JOIN builders ON builders.id = registries.builder_id").
+			Where("LOWER(builders.org_name) LIKE ? OR LOWER(builders.head_full_name) LIKE ?", like, like)
+	}
+	if q := strings.TrimSpace(c.Query("building_q")); q != "" {
+		like := "%" + strings.ToLower(q) + "%"
+		db = db.Joins("LEFT JOIN buildings ON buildings.id = registries.building_id").
+			Where("LOWER(buildings.kind) LIKE ? OR LOWER(buildings.street) LIKE ?", like, like)
+	}
+	return db
+}
+
+func parseIDList(s string) []int {
+	var ids []int
+	for _, p := range strings.Split(s, ",") {
+		if n, err := strconv.Atoi(strings.TrimSpace(p)); err == nil {
+			ids = append(ids, n)
+		}
+	}
+	return ids
+}
+
+func GetRegistries(c *gin.Context) {
+	pagination := utils.GetPaginationParams(c)
+
+	var data []models.Registry
+	query := applyRegistryListFilters(
+		initializers.DB.Model(&models.Registry{}).
+			Preload("User").
+			Preload("GeneralContractor").
+			Preload("Building").
+			Preload("Builder").
+			Preload("Receiver").
+			Preload("Shareholder"), c).
+		Order("registries.t_b").
+		Limit(pagination.PageSize).
+		Offset(pagination.Offset)
 
 	if err := query.Find(&data).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Failed to retrieve data", "details": err.Error()})
@@ -304,24 +354,34 @@ func GetRegistries(c *gin.Context) {
 	}
 
 	var total int64
-	totalQuery := initializers.DB.Model(&models.Registry{})
-	switch source {
-	case "old":
-		totalQuery = totalQuery.Where("old_registry_id IS NOT NULL")
-	case "new":
-		totalQuery = totalQuery.Where("old_registry_id IS NULL")
-	}
-	if search != "" {
-		if tb, err := strconv.Atoi(search); err == nil {
-			totalQuery = totalQuery.Where("t_b = ?", tb)
-		} else {
-			totalQuery = totalQuery.Joins("JOIN shareholders ON shareholders.id = registries.shareholder_id")
-			totalQuery = totalQuery.Where("LOWER(shareholders.org_name) LIKE ? OR LOWER(shareholders.head_full_name) LIKE ? OR LOWER(shareholders.docs_additional_info) LIKE ?", "%"+lowerSearch+"%", "%"+lowerSearch+"%", "%"+lowerSearch+"%")
-		}
-	}
-	totalQuery.Count(&total)
+	applyRegistryListFilters(initializers.DB.Model(&models.Registry{}), c).Count(&total)
 
 	utils.RespondWithPagination(c, data, pagination, total)
+}
+
+type RegistryFilterOption struct {
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
+}
+
+// GetRegistryFilterOptions returns the distinct general contractors and users
+// referenced by registries, for the table column filter dropdowns
+func GetRegistryFilterOptions(c *gin.Context) {
+	var gcs []RegistryFilterOption
+	initializers.DB.Raw(`SELECT DISTINCT g.id, COALESCE(g.org_name, '') AS name
+		FROM general_contractors g
+		JOIN registries r ON r.general_contractor_id = g.id
+		WHERE r.deleted_at IS NULL
+		ORDER BY name`).Scan(&gcs)
+
+	var users []RegistryFilterOption
+	initializers.DB.Raw(`SELECT DISTINCT u.id, u.email AS name
+		FROM users u
+		JOIN registries r ON r.user_id = u.id
+		WHERE r.deleted_at IS NULL
+		ORDER BY name`).Scan(&users)
+
+	c.JSON(200, gin.H{"general_contractors": gcs, "users": users})
 }
 
 func GetRegistry(c *gin.Context) {
